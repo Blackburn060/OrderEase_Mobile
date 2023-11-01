@@ -209,18 +209,100 @@ class HomePage extends StatelessWidget {
           // Alinhe o nome de usuário e a foto do usuário à esquerda
           Row(
             children: [
+              Text('Nome do Usuário'),
+              SizedBox(width: 10),
               CircleAvatar(
                 backgroundImage: AssetImage('caminho_da_imagem_do_usuario.png'),
               ),
-              SizedBox(width: 10), // Adicione um espaço entre a foto e o nome
-              Text('Nome do Usuário'),
             ],
           ),
         ],
       ),
-      body: const Center(
-        child: Text('Conteúdo da Página de Início'),
-      ),
+      body: Center(
+          child: Column(
+        crossAxisAlignment:
+            CrossAxisAlignment.center, // Alinhar os botões no centro horizontal
+        children: <Widget>[
+          const SizedBox(height: 150), // Espaço superior
+          Container(
+            decoration: const BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black, // Cor da sombra
+                  offset: Offset(
+                      0, 2), // Deslocamento da sombra (horizontal, vertical)
+                  blurRadius: 4, // Raio do desfoque da sombra
+                  spreadRadius: 0, // Raio da propagação da sombra
+                ),
+              ],
+            ),
+            child: ElevatedButton(
+              onPressed: () {
+                // Ação para "Registrar Consumo"
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xff103085),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                side: const BorderSide(
+                  color: Colors.black, // Cor da borda
+                  width: 2.0, // Largura da borda
+                ),
+                minimumSize: const Size(200, 50),
+              ),
+              child: const Text(
+                'GARÇOM',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 255, 255, 255),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(width: 185, height: 53),
+
+          Container(
+            decoration: const BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black, // Cor da sombra
+                  offset: Offset(
+                      0, 2), // Deslocamento da sombra (horizontal, vertical)
+                  blurRadius: 4, // Raio do desfoque da sombra
+                  spreadRadius: 0, // Raio da propagação da sombra
+                ),
+              ],
+            ),
+            child: ElevatedButton(
+              onPressed: () {
+                // Ação para "Registrar Consumo"
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xff103085),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                side: const BorderSide(
+                  color: Colors.black, // Cor da borda
+                  width: 2.0, // Largura da borda
+                ),
+                minimumSize: const Size(200, 50),
+              ),
+              child: const Text(
+                'COZINHA',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 255, 255, 255),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      )),
     );
   }
 }
