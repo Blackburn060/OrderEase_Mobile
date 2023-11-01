@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'InicioPage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'telinha',
+      title: 'Acesso Rápido',
       theme: ThemeData(
         colorScheme:
             ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 37, 82, 186)),
@@ -25,8 +26,8 @@ class MyApp extends StatelessWidget {
             padding: EdgeInsets.zero,
             children: <Widget>[
               const UserAccountsDrawerHeader(
-                accountName: Text('Seu Nome'),
-                accountEmail: Text('seuemail@example.com'),
+                accountName: Text('Nome usuário'),
+                accountEmail: Text('emailusuário@example.com'),
                 currentAccountPicture: CircleAvatar(
                   backgroundColor: Colors.white,
                   child: Icon(Icons.person),
@@ -36,7 +37,8 @@ class MyApp extends StatelessWidget {
                 leading: const Icon(Icons.home),
                 title: const Text('Inicio'),
                 onTap: () {
-                  // Adicione ação aqui para navegar para a página inicial
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => InicioPage()));
                 },
               ),
               ListTile(
@@ -127,13 +129,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 child: const Text(
                   'Consultar Cardápio',
-                  style: TextStyle(color: Colors.black,
-                   fontSize: 18,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
                   ),
-                  
                 ),
               ),
-          
+
               const SizedBox(height: 27),
               ElevatedButton(
                 onPressed: () {
