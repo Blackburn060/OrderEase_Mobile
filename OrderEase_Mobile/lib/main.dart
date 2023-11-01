@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'InicioPage.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MaterialApp(
+    home: const MyApp(),
+    routes: {
+      '/HomePage': (context) => const HomePage(),
+    },
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -13,8 +17,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Acesso Rápido',
       theme: ThemeData(
-        colorScheme:
-            ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 37, 82, 186)),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 37, 82, 186)),
         useMaterial3: true,
       ),
       home: Scaffold(
@@ -37,8 +41,7 @@ class MyApp extends StatelessWidget {
                 leading: const Icon(Icons.home),
                 title: const Text('Inicio'),
                 onTap: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => InicioPage()));
+                  Navigator.pushNamed(context, '/HomePage');
                 },
               ),
               ListTile(
@@ -95,13 +98,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  /* int _counter = 0;
 
   void _incrementCounter() {
     setState(() {
       _counter++;
     });
-  }
+  } */
 
   @override
   Widget build(BuildContext context) {
@@ -190,5 +193,34 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
         ));
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        // Remova o título da página
+        title: null,
+        actions: const <Widget>[
+          // Alinhe o nome de usuário e a foto do usuário à esquerda
+          Row(
+            children: [
+              CircleAvatar(
+                backgroundImage: AssetImage('caminho_da_imagem_do_usuario.png'),
+              ),
+              SizedBox(width: 10), // Adicione um espaço entre a foto e o nome
+              Text('Nome do Usuário'),
+            ],
+          ),
+        ],
+      ),
+      body: const Center(
+        child: Text('Conteúdo da Página de Início'),
+      ),
+    );
   }
 }
