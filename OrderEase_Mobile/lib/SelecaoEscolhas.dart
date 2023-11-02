@@ -19,7 +19,7 @@ class SelecaoEscolhas extends StatelessWidget {
           ),
         ),
       ),
-      endDrawer: MenuLateral(), // Use endDrawer para exibir o menu à esquerda
+      endDrawer: const MenuLateral(), // Use endDrawer para exibir o menu à esquerda
       body: Center(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
