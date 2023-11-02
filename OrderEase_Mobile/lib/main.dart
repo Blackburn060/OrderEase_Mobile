@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 void main() {
   runApp(MaterialApp(
+    debugShowCheckedModeBanner: false, // Defina esta propriedade como false
     home: const MyApp(),
     routes: {
       '/HomePage': (context) => const HomePage(),
+      '/LoginPage': (context) => const LoginPage(),
     },
   ));
 }
@@ -15,6 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Acesso Rápido',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -23,18 +26,47 @@ class MyApp extends StatelessWidget {
       ),
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('OrderEase'),
+          backgroundColor: const Color(0xff203F97),
+          title: const Text('OrderEase',
+              style: TextStyle(
+                color: Color.fromARGB(255, 255, 255, 255),
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              )),
+          actions: const <Widget>[
+            Row(
+              children: [
+                Text('Nome do Usuário',
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    )),
+                SizedBox(width: 10),
+                CircleAvatar(
+                  backgroundImage:
+                      AssetImage('caminho_da_imagem_do_usuario.png'),
+                ),
+              ],
+            ),
+          ],
         ),
         drawer: Drawer(
           child: ListView(
             padding: EdgeInsets.zero,
             children: <Widget>[
-              const UserAccountsDrawerHeader(
-                accountName: Text('Nome usuário'),
-                accountEmail: Text('emailusuário@example.com'),
-                currentAccountPicture: CircleAvatar(
-                  backgroundColor: Colors.white,
-                  child: Icon(Icons.person),
+              UserAccountsDrawerHeader(
+                accountName: const Text('Nome usuário'),
+                accountEmail: const Text('emailusuário@example.com'),
+                currentAccountPicture: InkWell(
+                  onTap: () {
+                    // Navegar para a rota desejada quando a imagem do usuário for pressionada
+                    Navigator.pushNamed(context, '/LoginPage');
+                  },
+                  child: const CircleAvatar(
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.person),
+                  ),
                 ),
               ),
               ListTile(
@@ -98,20 +130,128 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  /* int _counter = 0;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        // Remova o título da página
+        title: null,
+      ),
+      body: Center(
+          child: Column(
+        crossAxisAlignment:
+            CrossAxisAlignment.center, // Alinhar os botões no centro horizontal
+        children: <Widget>[
+          const SizedBox(height: 150), // Espaço superior
+          Container(
+            decoration: const BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black, // Cor da sombra
+                  offset: Offset(
+                      0, 2), // Deslocamento da sombra (horizontal, vertical)
+                  blurRadius: 4, // Raio do desfoque da sombra
+                  spreadRadius: 0, // Raio da propagação da sombra
+                ),
+              ],
+            ),
+            child: ElevatedButton(
+              onPressed: () {
+                // Ação para "Registrar Consumo"
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xff103085),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                side: const BorderSide(
+                  color: Colors.black, // Cor da borda
+                  width: 2.0, // Largura da borda
+                ),
+                minimumSize: const Size(200, 50),
+              ),
+              child: const Text(
+                'GARÇOM',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 255, 255, 255),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  } */
+          const SizedBox(width: 185, height: 53),
+
+          Container(
+            decoration: const BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black, // Cor da sombra
+                  offset: Offset(
+                      0, 2), // Deslocamento da sombra (horizontal, vertical)
+                  blurRadius: 4, // Raio do desfoque da sombra
+                  spreadRadius: 0, // Raio da propagação da sombra
+                ),
+              ],
+            ),
+            child: ElevatedButton(
+              onPressed: () {
+                // Ação para "Registrar Consumo"
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xff103085),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                side: const BorderSide(
+                  color: Colors.black, // Cor da borda
+                  width: 2.0, // Largura da borda
+                ),
+                minimumSize: const Size(200, 50),
+              ),
+              child: const Text(
+                'COZINHA',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 255, 255, 255),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      )),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: Text(widget.title),
+        backgroundColor: const Color(0xff203F97),
+          title: const Text('OrderEase',style: TextStyle(
+                  color: Color.fromARGB(255, 255, 255, 255),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,)),
+          actions: const <Widget>[
+          Row(
+            children: [
+              Text('Nome do Usuário',style: TextStyle(
+                  color: Color.fromARGB(255, 255, 255, 255),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,)),
+              SizedBox(width: 10),
+              CircleAvatar(
+                backgroundImage: AssetImage('caminho_da_imagem_do_usuario.png'),
+              ),
+            ],
+          ),
+        ],
         ),
         body: Center(
           child: Column(
@@ -196,8 +336,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -205,18 +345,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         // Remova o título da página
         title: null,
-        actions: const <Widget>[
-          // Alinhe o nome de usuário e a foto do usuário à esquerda
-          Row(
-            children: [
-              Text('Nome do Usuário'),
-              SizedBox(width: 10),
-              CircleAvatar(
-                backgroundImage: AssetImage('caminho_da_imagem_do_usuario.png'),
-              ),
-            ],
-          ),
-        ],
+        
       ),
       body: Center(
           child: Column(
@@ -252,7 +381,7 @@ class HomePage extends StatelessWidget {
                 minimumSize: const Size(200, 50),
               ),
               child: const Text(
-                'GARÇOM',
+                'USUÁRIO',
                 style: TextStyle(
                   color: Color.fromARGB(255, 255, 255, 255),
                   fontSize: 18,
@@ -292,7 +421,7 @@ class HomePage extends StatelessWidget {
                 minimumSize: const Size(200, 50),
               ),
               child: const Text(
-                'COZINHA',
+                'SENHA',
                 style: TextStyle(
                   color: Color.fromARGB(255, 255, 255, 255),
                   fontSize: 18,
