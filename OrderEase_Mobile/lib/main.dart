@@ -233,25 +233,30 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-        backgroundColor: const Color(0xff203F97),
-          title: const Text('OrderEase',style: TextStyle(
-                  color: Color.fromARGB(255, 255, 255, 255),
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,)),
+          backgroundColor: const Color(0xff203F97),
+          title: const Text('OrderEase',
+              style: TextStyle(
+                color: Color.fromARGB(255, 255, 255, 255),
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              )),
           actions: const <Widget>[
-          Row(
-            children: [
-              Text('Nome do Usuário',style: TextStyle(
-                  color: Color.fromARGB(255, 255, 255, 255),
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,)),
-              SizedBox(width: 10),
-              CircleAvatar(
-                backgroundImage: AssetImage('caminho_da_imagem_do_usuario.png'),
-              ),
-            ],
-          ),
-        ],
+            Row(
+              children: [
+                Text('Nome do Usuário',
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    )),
+                SizedBox(width: 10),
+                CircleAvatar(
+                  backgroundImage:
+                      AssetImage('caminho_da_imagem_do_usuario.png'),
+                ),
+              ],
+            ),
+          ],
         ),
         body: Center(
           child: Column(
@@ -343,29 +348,62 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // Remova o título da página
-        title: null,
-        
+        title: null, // Remova o título da página
       ),
       body: Center(
-          child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.center, // Alinhar os botões no centro horizontal
-        children: <Widget>[
-          const SizedBox(height: 150), // Espaço superior
-          Container(
-            decoration: const BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black, // Cor da sombra
-                  offset: Offset(
-                      0, 2), // Deslocamento da sombra (horizontal, vertical)
-                  blurRadius: 4, // Raio do desfoque da sombra
-                  spreadRadius: 0, // Raio da propagação da sombra
-                ),
-              ],
+        child: Column(
+          mainAxisAlignment:
+              MainAxisAlignment.center, // Centralize verticalmente
+          crossAxisAlignment:
+              CrossAxisAlignment.center, // Centralize horizontalmente
+          children: <Widget>[
+            const Text(
+              'Login',
+              style: TextStyle(
+                  color: Color.fromARGB(255, 0, 0, 0),
+                  fontSize: 50,
+                  fontWeight: FontWeight.bold,
+              ),
             ),
-            child: ElevatedButton(
+            const SizedBox(height: 5),
+            // Campo de usuário
+            Padding(
+              padding:
+                  const EdgeInsets.all(8.0), // Adicione o espaçamento desejado
+              child: Container(
+                width: 250, // Defina a largura desejada
+                child: const TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Usuário',
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Colors.black), // Cor da linha inferior
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            // Campo de senha
+            Padding(
+              padding:
+                  const EdgeInsets.all(8.0), // Adicione o espaçamento desejado
+              child: Container(
+                width: 250, // Defina a largura desejada
+                child: const TextField(
+                  obscureText: true, // Para ocultar a senha
+                  decoration: InputDecoration(
+                    labelText: 'Senha',
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Colors.black), // Cor da linha inferior
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16), // Espaçamento entre os campos e o botão
+            // Botão de entrar
+            ElevatedButton(
               onPressed: () {
                 // Ação para "Registrar Consumo"
               },
@@ -381,7 +419,7 @@ class LoginPage extends StatelessWidget {
                 minimumSize: const Size(200, 50),
               ),
               child: const Text(
-                'USUÁRIO',
+                'ENTRAR',
                 style: TextStyle(
                   color: Color.fromARGB(255, 255, 255, 255),
                   fontSize: 18,
@@ -389,49 +427,9 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-
-          const SizedBox(width: 185, height: 53),
-
-          Container(
-            decoration: const BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black, // Cor da sombra
-                  offset: Offset(
-                      0, 2), // Deslocamento da sombra (horizontal, vertical)
-                  blurRadius: 4, // Raio do desfoque da sombra
-                  spreadRadius: 0, // Raio da propagação da sombra
-                ),
-              ],
-            ),
-            child: ElevatedButton(
-              onPressed: () {
-                // Ação para "Registrar Consumo"
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xff103085),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                side: const BorderSide(
-                  color: Colors.black, // Cor da borda
-                  width: 2.0, // Largura da borda
-                ),
-                minimumSize: const Size(200, 50),
-              ),
-              child: const Text(
-                'SENHA',
-                style: TextStyle(
-                  color: Color.fromARGB(255, 255, 255, 255),
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
-      )),
+          ],
+        ),
+      ),
     );
   }
 }
