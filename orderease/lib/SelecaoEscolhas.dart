@@ -27,8 +27,12 @@ class SelecaoEscolhas extends StatelessWidget {
           width: 370,
           height: 540,
           decoration: BoxDecoration(
-            color: const Color(0xff203F97).withOpacity(0.5), // Background color
+            color: const Color(0xff203F97).withOpacity(0.0), // Background color
             borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.black, // Cor da borda
+              width: 2.0, // Largura da borda
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
