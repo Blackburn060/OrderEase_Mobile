@@ -9,10 +9,10 @@ void main() {
     debugShowCheckedModeBanner: false,
     home: const TelaInicial(),
     routes: {
-      
       '/LoginPage': (context) => const LoginPage(),
       '/SelecaoEscolhas': (context) => const SelecaoEscolhas(),
       '/TelaInicial': (context) => TelaInicial(),
+      '/MenuLateral': (context) => const SelecaoEscolhas(),
     },
   ));
 }

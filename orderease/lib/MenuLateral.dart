@@ -64,7 +64,7 @@ class MenuLateral extends StatelessWidget {
             onTap: () {
               Navigator.pop(context); // Fecha o menu lateral
               Navigator.pushNamed(
-                  context, '/HomePage'); // Navega para a página de início
+                  context, '/SelecaoEscolhas'); // Navega para a página de início
             },
           ),
           ListTile(
