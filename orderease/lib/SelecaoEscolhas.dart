@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'menulateral.dart';
+import 'CustomButton.dart';
 
 class SelecaoEscolhas extends StatelessWidget {
   const SelecaoEscolhas({Key? key}) : super(key: key);
@@ -19,96 +20,50 @@ class SelecaoEscolhas extends StatelessWidget {
           ),
         ),
       ),
-      endDrawer: const MenuLateral(), // Use endDrawer para exibir o menu à esquerda
+      endDrawer:
+          const MenuLateral(), // Use endDrawer to display the menu on the left
       body: Center(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            const SizedBox(height: 150),
-            ElevatedButton(
-              onPressed: () {
-                // Ação para "Consultar Cardápio"
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue, // Cor de fundo
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                minimumSize: const Size(200, 50),
-              ),
-              child: const Text(
-                'Consultar Cardápio',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
-                ),
-              ),
-            ),
-            const SizedBox(height: 27),
-            ElevatedButton(
-              onPressed: () {
-                // Ação para "Registrar Consumo"
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue, // Cor de fundo
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                minimumSize: const Size(200, 50),
-              ),
-              child: const Text(
-                'Registrar Consumo',
-                style: TextStyle(color: Colors.black, fontSize: 18),
-              ),
-            ),
-            const SizedBox(height: 27),
-            ElevatedButton(
-              onPressed: () {
-                // Ação para "Pedidos"
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue, // Cor de fundo
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                minimumSize: const Size(200, 50),
-              ),
-              child: const Text(
-                'Pedidos',
-                style: TextStyle(color: Colors.black, fontSize: 18),
-              ),
-            ),
-            const SizedBox(height: 27),
-            ElevatedButton(
-              onPressed: () {
-                // Ação para "Encerrar Consumo"
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue, // Cor de fundo
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                minimumSize: const Size(200, 50),
-              ),
-              child: const Text(
-                'Encerrar Consumo',
-                style: TextStyle(color: Colors.black, fontSize: 18),
-              ),
-            ),
-          Positioned.fill(
-            child: Center(
-              child: Container(
-                width: 200, // Largura do Container
-                height: 200, // Altura do Container
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 207, 206, 206).withOpacity(0.3), // Cor preta com transparência
-                  borderRadius: BorderRadius.circular(12), // Bordas arredondadas
-                ),
-              ),
-            ),
+        child: Container(
+          width: 370,
+          height: 540,
+          decoration: BoxDecoration(
+            color: const Color(0xff203F97).withOpacity(0.5), // Background color
+            borderRadius: BorderRadius.circular(12),
           ),
-        ],
-      ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              CustomLargeButton(
+                text: 'Consultar Cardápio',
+                onPressed: () {
+                  // Ação para "Consultar Cardápio"
+                },
+              ),
+              const SizedBox(height: 37),
+              CustomLargeButton(
+                text: 'Registrar Consumo',
+                onPressed: () {
+                  // Ação para "Registrar Consumo"
+                },
+              ),
+              const SizedBox(height: 37),
+              CustomLargeButton(
+                text: 'Churisco',
+                onPressed: () {
+                  // Ação para "Pedidos"
+                },
+              ),
+              const SizedBox(height: 37),
+              CustomLargeButton(
+                text: 'Encerrar Consumo',
+                onPressed: () {
+                  // Ação para "Encerrar Consumo"
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
