@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'menulateral.dart';
-import 'CustomButton.dart';
+import 'customizacaoBotoes/CustomButton.dart';
 
 class SelecaoEscolhas extends StatelessWidget {
   const SelecaoEscolhas({Key? key}) : super(key: key);
