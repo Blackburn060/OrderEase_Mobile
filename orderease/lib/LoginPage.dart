@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -10,31 +9,11 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _showPassword = false;
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  String _errorText = ''; // Variável para armazenar a mensagem de erro
 
   void _togglePasswordVisibility() {
     setState(() {
       _showPassword = !_showPassword;
     });
-  }
-
-  Future<void> _login() async {
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
-      // Autenticação bem-sucedida, você pode redirecionar o usuário para a próxima tela.
-      Navigator.pushNamed(context, '/SelecaoEscolhas');
-    } catch (e) {
-      // Tratar erros de autenticação, como senha incorreta ou usuário não encontrado.
-      setState(() {
-        _errorText =
-            'E-mail ou senha incorretos'; // Atualiza a mensagem de erro
-      });
-    }
   }
 
   @override
@@ -68,17 +47,15 @@ class _LoginPageState extends State<LoginPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
                     width: 250,
-                    child: TextField(
-                      controller: _emailController,
+                    child: const TextField(
                       decoration: InputDecoration(
                         labelText: 'Usuário',
-                        focusedBorder: const UnderlineInputBorder(
+                        focusedBorder: UnderlineInputBorder(
                           borderSide: BorderSide(
                             color: Colors.black,
                           ),
                         ),
-                        prefixIcon: const Icon(Icons.person),
-                        errorText: _errorText.isNotEmpty ? _errorText : null,
+                        prefixIcon: Icon(Icons.person),
                       ),
                     ),
                   ),
@@ -88,7 +65,6 @@ class _LoginPageState extends State<LoginPage> {
                   child: Container(
                     width: 250,
                     child: TextField(
-                      controller: _passwordController,
                       obscureText: !_showPassword,
                       decoration: InputDecoration(
                         labelText: 'Senha',
@@ -104,7 +80,6 @@ class _LoginPageState extends State<LoginPage> {
                               : Icons.visibility_off),
                           onPressed: _togglePasswordVisibility,
                         ),
-                        errorText: _errorText.isNotEmpty ? _errorText : null,
                       ),
                     ),
                   ),
@@ -113,10 +88,11 @@ class _LoginPageState extends State<LoginPage> {
                   padding: const EdgeInsets.only(
                       top: 50.0), // Mover o botão para baixo
                   child: ElevatedButton(
-                    onPressed: _login,
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/SelecaoEscolhas');
+                    },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(
-                          255, 11, 81, 138), // Cor de fundo do botão
+                      backgroundColor: const Color.fromARGB(255, 11, 81, 138), // Cor de fundo do botão
                       shape: RoundedRectangleBorder(
                         borderRadius:
                             BorderRadius.circular(12), // Borda arredondada
