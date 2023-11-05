@@ -1,18 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'TelaPrincipal.dart';
 import 'SelecaoEscolhas.dart';
-import 'Telainicial.dart'; // Importe a classe Telainicial
+import 'Telainicial.dart';
 import 'LoginPage.dart';
+import 'package:firebase_core/firebase_core.dart';
+/* import 'firebase_options.dart'; */
 
-void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: const TelaInicial(),
-    routes: {
-      '/LoginPage': (context) => const LoginPage(),
-      '/SelecaoEscolhas': (context) => const SelecaoEscolhas(),
-      '/TelaInicial': (context) => TelaInicial(),
-      '/MenuLateral': (context) => const SelecaoEscolhas(),
-    },
-  ));
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      initialRoute: '/LoginPage', // Defina a página de login como rota inicial
+      routes: {
+        '/LoginPage': (context) => const LoginPage(),
+        '/SelecaoEscolhas': (context) => const SelecaoEscolhas(),
+        '/TelaInicial': (context) => const TelaInicial(),
+        '/MenuLateral': (context) => const SelecaoEscolhas(),
+      }, 
+    );
+  }
 }
