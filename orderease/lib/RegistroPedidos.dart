@@ -1,54 +1,75 @@
 import 'package:flutter/material.dart';
 import 'menulateral.dart';
 
-import 'package:flutter/material.dart';
-
-class RegistrarPedidosPage extends StatelessWidget {
-  const RegistrarPedidosPage({Key? key}) : super(key: key);
+class RegistroPedidos extends StatelessWidget {
+  const RegistroPedidos({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Registrar Consumo'),
+        backgroundColor: const Color(0xff203F97),
+        title: const Text(
+          'Registrar Consumo',
+          style: TextStyle(
+            color: Color.fromARGB(255, 255, 255, 255),
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
-      drawer: // Seu menu lateral aqui,
+      drawer: const MenuLateral(),
       body: Center(
         child: Container(
-          width: 300, // Defina o tamanho desejado para o quadrado
+          width: 370,
+          height: 540,
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.black), // Bordas pretas
-            borderRadius: BorderRadius.circular(10), // Borda arredondada
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.black,
+              width: 2.0,
+            ),
           ),
-        
-          child: Column(
-            children: [
-              Text('Mesa'), // Nome "Mesa"
-              TextField(
-                decoration: InputDecoration(hintText: 'Número da Mesa'),
-              ),
-              Text('Quantidade'), // Nome "Quantidade"
-              TextField(
-                decoration: InputDecoration(hintText: 'Quantidade'),
-              ),
-              Text('Observação'), // Nome "Observação"
-              TextField(
-                decoration: InputDecoration(hintText: 'Observação'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  // Ação ao clicar no botão azul
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.blue, // Cor de fundo azul
-                  onPrimary: Colors.white, // Texto em branco
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), // Borda arredondada
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: <Widget>[
+                const SizedBox(height: 20),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Mesa'),
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Quantidade'),
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Observação'),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    // Ação para o botão azul
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff0B518A),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    minimumSize: const Size(200, 50),
+                  ),
+                  child: const Text(
+                    'Registrar',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-                child: Text('Registrar', style: TextStyle(color: Colors.white)),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -5,7 +5,7 @@ import 'SelecaoEscolhas.dart';
 import 'Telainicial.dart';
 import 'LoginPage.dart';
 import 'firebase_options.dart';
-
+import 'RegistroPedidos.dart';
 /* import 'firebase_options.dart'; */
 
 void main() async {
@@ -28,6 +28,8 @@ class MyApp extends StatelessWidget {
         '/SelecaoEscolhas': (context) => const SelecaoEscolhas(),
         '/TelaInicial': (context) => const TelaInicial(),
         '/MenuLateral': (context) => const SelecaoEscolhas(),
+        '/RegistroPedidos': (context) => const RegistroPedidos(),
+        
       }, 
     );
   }

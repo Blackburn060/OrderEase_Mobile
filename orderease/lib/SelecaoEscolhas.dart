@@ -20,8 +20,8 @@ class SelecaoEscolhas extends StatelessWidget {
           ),
         ),
       ),
-      endDrawer:
-          const MenuLateral(), // Use endDrawer to display the menu on the left
+      endDrawer: const MenuLateral(),
+           // Use endDrawer to display the menu on the left
       body: Center(
         child: Container(
           width: 370,
@@ -48,12 +48,12 @@ class SelecaoEscolhas extends StatelessWidget {
               CustomLargeButton(
                 text: 'Registrar Consumo',
                 onPressed: () {
-                  // Ação para "Registrar Consumo"
+                  Navigator.pushNamed(context, '/RegistroPedidos');
                 },
               ),
               const SizedBox(height: 37),
               CustomLargeButton(
-                text: 'Churisco',
+                text: 'Pedidos',
                 onPressed: () {
                   // Ação para "Pedidos"
                 },
