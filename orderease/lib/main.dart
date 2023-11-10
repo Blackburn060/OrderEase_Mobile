@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/TelaInicial', // Defina a página de login como rota inicial
+      initialRoute: '/TelaInicial', 
       routes: {
         '/LoginPage': (context) => const LoginPage(),
         '/SelecaoEscolhas': (context) => const SelecaoEscolhas(),
