@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
-import 'package:logger/logger.dart';
 import 'CustomizacaoPedidos.dart';
 
 class Produto {
@@ -50,7 +49,6 @@ class FuncionalidadesPedidos extends StatefulWidget {
 
 class _FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final Logger logger = Logger();
 
   TextEditingController quantidadeController = TextEditingController();
   TextEditingController mesaController = TextEditingController();
@@ -65,7 +63,6 @@ class _FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
 
   String selectedCategory = 'Bebidas Alcoólicas';
   int selectedItemIndex = 0;
-  bool mesaSelecionada = false;
   List<Pedido> pedidos = [];
 
   @override
@@ -156,7 +153,7 @@ class _FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () async {
+              onPressed: () {
                 try {
                   print('Botão "Incluir Produto" pressionado');
                   if (quantidadeController.text.isEmpty) {
@@ -236,13 +233,33 @@ class _FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          // ... Lógica do FloatingActionButton ...
-        },
-        backgroundColor: const Color(0xff0B518A),
-        child: const Text('Registrar'),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+  onPressed: () async {
+    // Antes de enviar pedidos para o banco de dados
+    print('Enviando pedidos para o banco de dados: $pedidos');
+
+    try {
+      // Enviar pedidos para o banco de dados
+      for (var pedido in pedidos) {
+        await _firestore.collection('Pedidos').add(pedido.toMap());
+      }
+
+      // Limpar a lista de pedidos
+      pedidos.clear();
+
+      // Atualizar o estado para reconstruir o widget
+      setState(() {});
+
+      // Depois de enviar pedidos para o banco de dados
+      print('Pedidos enviados para o banco de dados com sucesso');
+    } catch (e) {
+      // Em caso de erro ao enviar para o banco de dados
+      print('Erro ao enviar pedidos para o banco de dados: $e');
+    }
+  },
+  backgroundColor: const Color(0xff0B518A),
+  child: const Text('Registrar'),
+),
+floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
     );
   }
 }
