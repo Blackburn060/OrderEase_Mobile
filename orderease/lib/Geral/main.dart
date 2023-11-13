@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'TelaPrincipal.dart';
-import 'SelecaoEscolhas.dart';
-import 'Telainicial.dart';
-import 'LoginPage.dart';
+import '../Garcons/SelecaoEscolhas.dart';
+import '../Telainicial.dart';
+import '../Garcons/LoginPage.dart';
 import 'firebase_options.dart';
-import 'TelaPedidos/FuncionalidadesPedidos.dart'; // Corrigir o caminho aqui
-import 'TelaPedidos/CustomizacaoPedidos.dart'; // Corrigir o caminho aqui
+import '../Garcons/TelaPedidos/FuncionalidadesPedidos.dart'; // Corrigir o caminho aqui
+import '../Garcons/TelaPedidos/CustomizacaoPedidos.dart'; // Corrigir o caminho aqui
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
