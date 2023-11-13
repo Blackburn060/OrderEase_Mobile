@@ -113,8 +113,51 @@ class _CustomizacaoPedidosState extends State<CustomizacaoPedidos> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () async {
-                    
+                  onPressed: () {
+                    try {
+                      print('Botão "Incluir Produto" pressionado');
+                      if (quantidadeController.text.isEmpty) {
+                        throw Exception("A quantidade não pode ser vazia.");
+                      }
+
+                      final item = itemsDisponiveis
+                          .where((item) => item.categoria == selectedCategory)
+                          .elementAt(selectedItemIndex);
+                      final quantidade =
+                          int.parse(quantidadeController.text);
+
+                      final observacao = observacaoController.text;
+
+                      final itemPedido = ItemPedido(
+                        produto: item,
+                        quantidade: quantidade,
+                        observacao: observacao,
+                      );
+
+                      // Adicionar um novo item ao pedido existente ou criar um novo pedido
+                      var pedidoExistente = pedidos.firstWhere(
+                        (pedido) => pedido.mesa == mesaController.text,
+                        orElse: () => Pedido(
+                            itens: [],
+                            mesa: mesaController.text,
+                            observacao: ''),
+                      );
+
+                      setState(() {
+                        pedidoExistente.itens.add(itemPedido);
+
+                        if (!pedidos.contains(pedidoExistente)) {
+                          pedidos.add(pedidoExistente);
+                        }
+
+                        // Limpar os controladores
+                        quantidadeController.clear();
+                        observacaoController.clear();
+                      });
+                    } catch (e) {
+                      // Tratamento de erros
+                      print('Erro ao incluir produto: $e');
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xff0B518A),
@@ -138,22 +181,33 @@ class _CustomizacaoPedidosState extends State<CustomizacaoPedidos> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: pedidos.map((pedido) {
-                    return ListTile(
-                      title: Text(
-                        '${pedido.produto.nome} - ${pedido.quantidade}',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      subtitle: Text(
-                        'Mesa: ${pedido.mesa}, Observação: ${pedido.observacao}',
-                      ),
-                      trailing: IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: () {
-                          setState(() {
-                            pedidos.remove(pedido);
-                          });
-                        },
-                      ),
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: pedido.itens.map((itemPedido) {
+                        return ListTile(
+                          title: Text(
+                            '${itemPedido.produto.nome} - ${itemPedido.quantidade}',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          subtitle: Text(
+                            'Mesa: ${pedido.mesa}, Observação: ${pedido.observacao}',
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () {
+                              setState(() {
+                                // Remover o itemPedido da lista de itens do pedido
+                                pedido.itens.remove(itemPedido);
+
+                                // Se não houver mais itens no pedido, remover o pedido
+                                if (pedido.itens.isEmpty) {
+                                  pedidos.remove(pedido);
+                                }
+                              });
+                            },
+                          ),
+                        );
+                      }).toList(),
                     );
                   }).toList(),
                 ),

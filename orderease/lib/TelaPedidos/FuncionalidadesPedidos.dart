@@ -17,16 +17,14 @@ class Produto {
   }
 }
 
-class Pedido {
+class ItemPedido {
   final Produto produto;
   final int quantidade;
-  final String mesa;
   final String observacao;
 
-  Pedido({
+  ItemPedido({
     required this.produto,
     required this.quantidade,
-    required this.mesa,
     required this.observacao,
   });
 
@@ -34,12 +32,31 @@ class Pedido {
     return {
       'produto': produto.toMap(),
       'quantidade': quantidade,
-      'mesa': mesa,
       'observacao': observacao,
     };
   }
 }
 
+
+class Pedido {
+  final String mesa;
+  final String observacao;
+  final List<ItemPedido> itens;
+
+  Pedido({
+    required this.mesa,
+    required this.observacao,
+    required this.itens,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'itens': itens.map((item) => item.toMap()).toList(), // Correção aqui
+      'mesa': mesa,
+      'observacao': observacao,
+    };
+  }
+}
 class FuncionalidadesPedidos extends StatefulWidget {
   const FuncionalidadesPedidos({Key? key}) : super(key: key);
 
@@ -165,24 +182,32 @@ class _FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
                       .elementAt(selectedItemIndex);
                   final quantidade = int.parse(quantidadeController.text);
 
-                  final mesa = mesaController.text;
                   final observacao = observacaoController.text;
 
-                  final pedido = Pedido(
+                  final itemPedido = ItemPedido(
                     produto: item,
                     quantidade: quantidade,
-                    mesa: mesa,
                     observacao: observacao,
                   );
 
-                  pedidos.add(pedido);
+                  // Adicionar um novo item ao pedido existente ou criar um novo pedido
+                  var pedidoExistente = pedidos.firstWhere(
+                    (pedido) => pedido.mesa == mesaController.text,
+                    orElse: () => Pedido(
+                        itens: [], mesa: mesaController.text, observacao: ''),
+                  );
 
-                  // Limpar os controladores
-                  quantidadeController.clear();
-                  observacaoController.clear();
+                  setState(() {
+                    pedidoExistente.itens.add(itemPedido);
 
-                  // Atualizar o estado para reconstruir o widget
-                  setState(() {});
+                    if (!pedidos.contains(pedidoExistente)) {
+                      pedidos.add(pedidoExistente);
+                    }
+
+                    // Limpar os controladores
+                    quantidadeController.clear();
+                    observacaoController.clear();
+                  });
                 } catch (e) {
                   // Tratamento de erros
                   print('Erro ao incluir produto: $e');
@@ -206,60 +231,76 @@ class _FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
             ),
             const SizedBox(height: 20),
 
-            // Lista de itens selecionados
+            // Lista de pedidos
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: pedidos.map((pedido) {
-                return ListTile(
-                  title: Text(
-                    '${pedido.produto.nome} - ${pedido.quantidade}',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  subtitle: Text(
-                    'Mesa: ${pedido.mesa}, Observação: ${pedido.observacao}',
-                  ),
-                  trailing: IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () {
-                      setState(() {
-                        pedidos.remove(pedido);
-                      });
-                    },
-                  ),
-                );
-              }).toList(),
-            ),
+  children: pedidos.map((pedido) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: pedido.itens.map((item) {
+        return ListTile(
+          title: Text(
+            '${item.produto.nome} - ${item.quantidade}',
+            style: TextStyle(fontSize: 16),
+          ),
+          subtitle: Text(
+            'Mesa: ${pedido.mesa}, Observação: ${pedido.observacao}',
+          ),
+          trailing: IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {
+              setState(() {
+                // Remover o item do pedido
+                pedido.itens.remove(item);
+
+                // Se não houver mais itens no pedido, remover o pedido
+                if (pedido.itens.isEmpty) {
+                  pedidos.remove(pedido);
+                }
+              });
+            },
+          ),
+        );
+      }).toList(),
+    );
+  }).toList(),
+),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-  onPressed: () async {
-    // Antes de enviar pedidos para o banco de dados
-    print('Enviando pedidos para o banco de dados: $pedidos');
+        onPressed: () async {
+          try {
+            print('Botão "Registrar" pressionado');
 
-    try {
-      // Enviar pedidos para o banco de dados
-      for (var pedido in pedidos) {
-        await _firestore.collection('Pedidos').add(pedido.toMap());
-      }
+            // Verificar se há pedidos para registrar
+            if (pedidos.isEmpty) {
+              print('Nenhum pedido para registrar.');
+              return;
+            }
 
-      // Limpar a lista de pedidos
-      pedidos.clear();
+            // Enviar pedidos para o Firestore
+            for (Pedido pedido in pedidos) {
+              await _firestore.collection('pedidos').add(pedido.toMap());
+            }
 
-      // Atualizar o estado para reconstruir o widget
-      setState(() {});
+            // Limpar a lista de pedidos após enviar para o Firestore
+            setState(() {
+              pedidos.clear();
+            });
 
-      // Depois de enviar pedidos para o banco de dados
-      print('Pedidos enviados para o banco de dados com sucesso');
-    } catch (e) {
-      // Em caso de erro ao enviar para o banco de dados
-      print('Erro ao enviar pedidos para o banco de dados: $e');
-    }
-  },
-  backgroundColor: const Color(0xff0B518A),
-  child: const Text('Registrar'),
-),
-floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+            print('Pedidos registrados com sucesso!');
+          } catch (e) {
+            // Tratamento de erros
+            print('Erro ao registrar pedidos: $e');
+          }
+          // Lógica do FloatingActionButton
+          // Aqui você pode implementar a lógica para registrar os pedidos no Firebase, por exemplo
+        },
+        backgroundColor: const Color(0xff0B518A),
+        child: const Text('Registrar'),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
     );
   }
 }
