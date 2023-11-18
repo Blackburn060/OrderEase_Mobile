@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
-import 'CustomizacaoPedidos.dart';
 
 class Produto {
   final String nome;
@@ -14,6 +13,13 @@ class Produto {
       'nome': nome,
       'categoria': categoria,
     };
+  }
+
+  factory Produto.fromMap(Map<String, dynamic> map) {
+    return Produto(
+      nome: map['nome'],
+      categoria: map['categoria'],
+    );
   }
 }
 
@@ -35,8 +41,15 @@ class ItemPedido {
       'observacao': observacao,
     };
   }
-}
 
+  factory ItemPedido.fromMap(Map<String, dynamic> map) {
+    return ItemPedido(
+      produto: Produto.fromMap(map['produto']),
+      quantidade: map['quantidade'],
+      observacao: map['observacao'],
+    );
+  }
+}
 
 class Pedido {
   final String mesa;
@@ -51,36 +64,82 @@ class Pedido {
 
   Map<String, dynamic> toMap() {
     return {
-      'itens': itens.map((item) => item.toMap()).toList(), // Correção aqui
+      'itens': itens.map((item) => item.toMap()).toList(),
       'mesa': mesa,
       'observacao': observacao,
     };
   }
+
+  factory Pedido.fromMap(Map<String, dynamic> map) {
+    var itens =
+        (map['itens'] as List).map((item) => ItemPedido.fromMap(item)).toList();
+    return Pedido(
+      mesa: map['mesa'],
+      observacao: map['observacao'],
+      itens: itens,
+    );
+  }
 }
+
 class FuncionalidadesPedidos extends StatefulWidget {
   const FuncionalidadesPedidos({Key? key}) : super(key: key);
 
   @override
-  _FuncionalidadesPedidosState createState() => _FuncionalidadesPedidosState();
+  FuncionalidadesPedidosState createState() => FuncionalidadesPedidosState();
 }
 
-class _FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
+class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   TextEditingController quantidadeController = TextEditingController();
   TextEditingController mesaController = TextEditingController();
   TextEditingController observacaoController = TextEditingController();
 
-  List<Produto> itemsDisponiveis = [
-    Produto(nome: 'tomate', categoria: 'Bebidas Alcoólicas'),
-    Produto(nome: 'cereja', categoria: 'Bebidas Alcoólicas'),
-    Produto(nome: 'caldo', categoria: 'Comida'),
-    // Adicione mais itens conforme necessário
-  ];
+  List<Produto> itemsDisponiveis = [];
 
   String selectedCategory = 'Bebidas Alcoólicas';
   int selectedItemIndex = 0;
   List<Pedido> pedidos = [];
+
+  @override
+  void initState() {
+    super.initState();
+    carregarItemsDisponiveis();
+    carregarPedidosDoFirebase();
+  }
+
+  List<String> categoriasDisponiveis = [];
+
+  Future<void> carregarItemsDisponiveis() async {
+    try {
+      var querySnapshot =
+          await FirebaseFirestore.instance.collection('produtos').get();
+      itemsDisponiveis =
+          querySnapshot.docs.map((doc) => Produto.fromMap(doc.data())).toList();
+
+      // Obter categorias únicas dos produtos
+      categoriasDisponiveis =
+          itemsDisponiveis.map((produto) => produto.categoria).toSet().toList();
+
+      setState(() {});
+    } catch (e) {
+      print('Erro ao carregar itens disponíveis do Firebase: $e');
+    }
+  }
+
+  static Future<List<Pedido>> carregarPedidosDoFirebase() async {
+    try {
+      var querySnapshot =
+          await FirebaseFirestore.instance.collection('pedidos').get();
+      var pedidosCarregados = querySnapshot.docs
+          .map((doc) => Pedido.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+      return pedidosCarregados;
+    } catch (e) {
+      print('Erro ao carregar pedidos do Firebase: $e');
+      return [];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,13 +174,13 @@ class _FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
                 setState(() {
                   selectedCategory = value!;
                   selectedItemIndex = 0;
+                  categoriasDisponiveis = itemsDisponiveis
+                      .map((produto) => produto.categoria)
+                      .toSet()
+                      .toList();
                 });
               },
-              items: itemsDisponiveis
-                  .map((item) => item.categoria)
-                  .toSet()
-                  .toList()
-                  .map((category) {
+              items: categoriasDisponiveis.map((category) {
                 return DropdownMenuItem(
                   value: category,
                   child: Text(category),
@@ -158,17 +217,28 @@ class _FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
               inputFormatters: <TextInputFormatter>[
                 FilteringTextInputFormatter.digitsOnly
               ],
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Quantidade',
                 hintText: 'Digite a quantidade',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
               ),
             ),
-            const SizedBox(height: 20),
             TextField(
               controller: observacaoController,
-              decoration: const InputDecoration(labelText: 'Observação'),
+              decoration: InputDecoration(
+                labelText: 'Observação',
+                hintText: 'Digite uma observação',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+              ),
             ),
-            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 try {
@@ -234,37 +304,37 @@ class _FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
             // Lista de pedidos
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-  children: pedidos.map((pedido) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: pedido.itens.map((item) {
-        return ListTile(
-          title: Text(
-            '${item.produto.nome} - ${item.quantidade}',
-            style: TextStyle(fontSize: 16),
-          ),
-          subtitle: Text(
-            'Mesa: ${pedido.mesa}, Observação: ${pedido.observacao}',
-          ),
-          trailing: IconButton(
-            icon: Icon(Icons.delete),
-            onPressed: () {
-              setState(() {
-                // Remover o item do pedido
-                pedido.itens.remove(item);
+              children: pedidos.map((pedido) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: pedido.itens.map((item) {
+                    return ListTile(
+                      title: Text(
+                        '${item.produto.nome} - ${item.quantidade}',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      subtitle: Text(
+                        'Mesa: ${pedido.mesa}, Observação: ${pedido.observacao}',
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          setState(() {
+                            // Remover o item do pedido
+                            pedido.itens.remove(item);
 
-                // Se não houver mais itens no pedido, remover o pedido
-                if (pedido.itens.isEmpty) {
-                  pedidos.remove(pedido);
-                }
-              });
-            },
-          ),
-        );
-      }).toList(),
-    );
-  }).toList(),
-),
+                            // Se não houver mais itens no pedido, remover o pedido
+                            if (pedido.itens.isEmpty) {
+                              pedidos.remove(pedido);
+                            }
+                          });
+                        },
+                      ),
+                    );
+                  }).toList(),
+                );
+              }).toList(),
+            ),
           ],
         ),
       ),
@@ -294,11 +364,20 @@ class _FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
             // Tratamento de erros
             print('Erro ao registrar pedidos: $e');
           }
-          // Lógica do FloatingActionButton
-          // Aqui você pode implementar a lógica para registrar os pedidos no Firebase, por exemplo
         },
-        backgroundColor: const Color(0xff0B518A),
-        child: const Text('Registrar'),
+        backgroundColor: const Color(0xff0B518A), // Cor de fundo
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+
+        child: const Text(
+          'Registrar',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
     );

@@ -7,7 +7,6 @@ import 'Telainicial.dart';
 import 'LoginPage.dart';
 import 'firebase_options.dart';
 import 'TelaPedidos/FuncionalidadesPedidos.dart'; // Corrigir o caminho aqui
-import 'TelaPedidos/CustomizacaoPedidos.dart'; // Corrigir o caminho aqui
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +29,6 @@ class MyApp extends StatelessWidget {
         '/TelaInicial': (context) => const TelaInicial(),
         '/MenuLateral': (context) => const SelecaoEscolhas(),
         '/RegistroPedidos': (context) => const FuncionalidadesPedidos(),
-        '/CustomizacaoPedidos': (context) => CustomizacaoPedidos(),
       },
     );
   }
