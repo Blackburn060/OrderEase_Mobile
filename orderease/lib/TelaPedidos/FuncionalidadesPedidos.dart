@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http; // Importe a biblioteca http
+import 'dart:convert';
 
 class Produto {
   final String nome;
@@ -101,47 +103,42 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
   int selectedItemIndex = 0;
   List<Pedido> pedidos = [];
 
-  @override
+ @override
   void initState() {
     super.initState();
-    carregarItemsDisponiveis();
-    carregarPedidosDoFirebase();
+    carregarProdutosDaAPI(); // Adicione esta linha para carregar os produtos da API
   }
 
   List<String> categoriasDisponiveis = [];
 
-  Future<void> carregarItemsDisponiveis() async {
+
+
+Future<void> carregarProdutosDaAPI() async {
     try {
-      var querySnapshot =
-          await FirebaseFirestore.instance.collection('produtos').get();
-      itemsDisponiveis =
-          querySnapshot.docs.map((doc) => Produto.fromMap(doc.data())).toList();
+      // Substitua a URL pela URL real da sua API
+      final response = await http.get(Uri.parse('https://orderease-api.onrender.com/api/listar-produtos?status=Ativo'));
 
-      // Obter categorias únicas dos produtos
-      categoriasDisponiveis =
-          itemsDisponiveis.map((produto) => produto.categoria).toSet().toList();
+      if (response.statusCode == 200) {
+        final List<dynamic> produtosJson = json.decode(response.body);
+        
+        // Mapeie os dados para a lista de produtos
+        itemsDisponiveis = produtosJson.map((produto) => Produto.fromMap(produto)).toList();
 
-      setState(() {});
+        // Atualize as categorias disponíveis
+        categoriasDisponiveis =
+            itemsDisponiveis.map((produto) => produto.categoria).toSet().toList();
+
+        setState(() {});
+      } else {
+        print('Erro ao carregar produtos da API: ${response.statusCode}');
+      }
     } catch (e) {
-      print('Erro ao carregar itens disponíveis do Firebase: $e');
-    }
-  }
-
-  static Future<List<Pedido>> carregarPedidosDoFirebase() async {
-    try {
-      var querySnapshot =
-          await FirebaseFirestore.instance.collection('pedidos').get();
-      var pedidosCarregados = querySnapshot.docs
-          .map((doc) => Pedido.fromMap(doc.data() as Map<String, dynamic>))
-          .toList();
-      return pedidosCarregados;
-    } catch (e) {
-      print('Erro ao carregar pedidos do Firebase: $e');
-      return [];
+      print('Erro ao carregar produtos da API: $e');
     }
   }
 
   @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -168,16 +165,12 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
               ),
             ),
             const SizedBox(height: 20),
-            DropdownButton<String>(
-              value: selectedCategory,
+       DropdownButton<String>(
+              value: categoriasDisponiveis.contains(selectedCategory) ? selectedCategory : categoriasDisponiveis.isNotEmpty ? categoriasDisponiveis[0] : '',
               onChanged: (value) {
                 setState(() {
                   selectedCategory = value!;
-                  selectedItemIndex = 0;
-                  categoriasDisponiveis = itemsDisponiveis
-                      .map((produto) => produto.categoria)
-                      .toSet()
-                      .toList();
+                  selectedItemIndex = 0; // Redefinir o índice selecionado ao mudar a categoria
                 });
               },
               items: categoriasDisponiveis.map((category) {
@@ -187,7 +180,10 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
                 );
               }).toList(),
             ),
+
             const SizedBox(height: 20),
+
+            // Dropdown para Itens
             DropdownButton<int>(
               value: selectedItemIndex,
               onChanged: (value) {
