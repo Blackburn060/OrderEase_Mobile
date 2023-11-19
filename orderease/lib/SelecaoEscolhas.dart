@@ -62,7 +62,7 @@ class SelecaoEscolhas extends StatelessWidget {
               CustomLargeButton(
                 text: 'Encerrar Consumo',
                 onPressed: () {
-                  // Ação para "Encerrar Consumo"
+                  Navigator.pushNamed(context, '/EncerrarComanda');
                 },
               ),
             ],
