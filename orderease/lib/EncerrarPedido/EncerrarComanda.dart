@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class EncerrarPedidos extends StatefulWidget {
-  const EncerrarPedidos({super.key});
+  final int mesa;
+
+  const EncerrarPedidos({Key? key, required this.mesa}) : super(key: key);
 
   @override
   _EncerrarPedidosState createState() => _EncerrarPedidosState();
@@ -12,12 +14,11 @@ class _EncerrarPedidosState extends State<EncerrarPedidos> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Encerrar Pedidos'),
+        title: Text('Encerrar Pedidos - Mesa ${widget.mesa}'),
         actions: [
           IconButton(
             icon: const Icon(Icons.menu),
-            onPressed: () {
-            },
+            onPressed: () {},
           ),
         ],
       ),
@@ -31,6 +32,7 @@ class _EncerrarPedidosState extends State<EncerrarPedidos> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
+                // Lógica para encerrar a comanda
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xff0B518A),
@@ -53,8 +55,9 @@ class _EncerrarPedidosState extends State<EncerrarPedidos> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          Navigator.pop(context); // Voltar para a tela anterior
         },
-        backgroundColor: Colors.blue, // Cor de fundo
+        backgroundColor: Colors.blue,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
