@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'TelaPrincipal.dart';
+/*import 'package:cloud_firestore/cloud_firestore.dart';
+import 'TelaPrincipal.dart';*/
 import 'SelecaoEscolhas.dart';
 import 'Telainicial.dart';
 import 'LoginPage.dart';
 import 'firebase_options.dart';
+import 'EncerrarPedido/EncerrarComanda.dart';
 import 'TelaPedidos/FuncionalidadesPedidos.dart'; // Corrigir o caminho aqui
 
 void main() async {
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
         '/TelaInicial': (context) => const TelaInicial(),
         '/MenuLateral': (context) => const SelecaoEscolhas(),
         '/RegistroPedidos': (context) => const FuncionalidadesPedidos(),
+        '/EncerrarComanda': (context) => const EncerrarPedidos(),
       },
     );
   }
