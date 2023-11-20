@@ -68,7 +68,7 @@ class Pedido {
     return {
       'itens': itens.map((item) => item.toMap()).toList(),
       'mesa': mesa,
-      'observacao': observacao,
+
     };
   }
 
@@ -136,6 +136,27 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
     }
   }
 
+  ElevatedButton buildButton(String text, VoidCallback onPressed) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xff0B518A),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        minimumSize: const Size(200, 50),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -148,7 +169,7 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const SizedBox(height: 20),
+            const SizedBox(height: 1),
             SizedBox(
               width: 150,
               child: TextField(
@@ -163,7 +184,7 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             DropdownButton<String>(
               value: categoriasDisponiveis.contains(selectedCategory)
                   ? selectedCategory
@@ -238,81 +259,59 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
             ),
             const SizedBox(height: 20),
             Container(
-              alignment: Alignment
-                  .centerRight, // Mude esta linha para alinhar à esquerda
+              alignment: Alignment.centerRight,
               child: ConstrainedBox(
                 constraints: BoxConstraints.tightFor(width: 200, height: 50),
-                child: ElevatedButton(
-                  onPressed: () {
-                    try {
-                      print('Botão "Incluir Produto" pressionado');
-                      if (quantidadeController.text.isEmpty) {
-                        throw Exception("A quantidade não pode ser vazia.");
-                      }
-
-                      final item = itemsDisponiveis
-                          .where((item) => item.categoria == selectedCategory)
-                          .elementAt(selectedItemIndex);
-                      final quantidade = int.parse(quantidadeController.text);
-
-                      final observacao = observacaoController.text;
-
-                      final itemPedido = ItemPedido(
-                        produto: item,
-                        quantidade: quantidade,
-                        observacao: observacao,
-                      );
-
-                      var pedidoExistente = pedidos.firstWhere(
-                        (pedido) => pedido.mesa == mesaController.text,
-                        orElse: () => Pedido(
-                          itens: [],
-                          mesa: mesaController.text,
-                          observacao: '',
-                        ),
-                      );
-
-                      if (pedidos.length < 10) {
-                        setState(() {
-                          pedidoExistente.itens.add(itemPedido);
-
-                          if (!pedidos.contains(pedidoExistente)) {
-                            pedidos.add(pedidoExistente);
-                          }
-
-                          quantidadeController.clear();
-                          observacaoController.clear();
-                        });
-                      } else {
-                        print('A lista de pedidos atingiu o tamanho máximo.');
-                        // Adicione um feedback ao usuário ou tome a ação apropriada.
-                      }
-                    } catch (e) {
-                      print('Erro ao incluir produto: $e');
+                child: buildButton('Incluir Produto', () {
+                  try {
+                    print('Botão "Incluir Produto" pressionado');
+                    if (quantidadeController.text.isEmpty) {
+                      throw Exception("A quantidade não pode ser vazia.");
                     }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff0B518A),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    minimumSize: const Size(200, 50),
-                  ),
-                  child: const Text(
-                    'Incluir Produto',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+
+                    final item = itemsDisponiveis
+                        .where((item) => item.categoria == selectedCategory)
+                        .elementAt(selectedItemIndex);
+                    final quantidade = int.parse(quantidadeController.text);
+
+                    final observacao = observacaoController.text;
+
+                    final itemPedido = ItemPedido(
+                      produto: item,
+                      quantidade: quantidade,
+                      observacao: observacao,
+                    );
+
+                    var pedidoExistente = pedidos.firstWhere(
+                      (pedido) => pedido.mesa == mesaController.text,
+                      orElse: () => Pedido(
+                        itens: [],
+                        mesa: mesaController.text,
+                        observacao: '',
+                      ),
+                    );
+
+                    setState(() {
+                      pedidoExistente.itens.add(itemPedido);
+
+                      if (!pedidos.contains(pedidoExistente)) {
+                        pedidos.add(pedidoExistente);
+                      }
+
+                      quantidadeController.clear();
+                      observacaoController.clear();
+                    });
+                  } catch (e) {
+                    print('Erro ao incluir produto: $e');
+                  }
+                }),
               ),
             ),
             const SizedBox(height: 20),
             Expanded(
               child: ListView.builder(
- itemCount: pedidos.length > 5 ? 5 : pedidos.length,                itemBuilder: (context, index) {
+                itemCount: pedidos.length,
+                itemBuilder: (context, index) {
                   final pedido = pedidos[index];
 
                   return Column(
@@ -371,100 +370,44 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
           ],
         ),
       ),
-  Container(
-  alignment: Alignment.centerRight,
-  child: ConstrainedBox(
-    constraints: BoxConstraints.tightFor(width: 200, height: 50),
-    child: buildButton(
-      'Incluir Produto',
-      () {
-        try {
-          print('Botão "Incluir Produto" pressionado');
-          if (quantidadeController.text.isEmpty) {
-            throw Exception("A quantidade não pode ser vazia.");
-          }
+   floatingActionButton: SizedBox(
+  width: 120.0, // Defina o tamanho desejado aqui
+  child: FloatingActionButton(
+    onPressed: () async {
+      try {
+        print('Botão "Registrar" pressionado');
 
-          final item = itemsDisponiveis
-              .where((item) => item.categoria == selectedCategory)
-              .elementAt(selectedItemIndex);
-          final quantidade = int.parse(quantidadeController.text);
-
-          final observacao = observacaoController.text;
-
-          final itemPedido = ItemPedido(
-            produto: item,
-            quantidade: quantidade,
-            observacao: observacao,
-          );
-
-          var pedidoExistente = pedidos.firstWhere(
-            (pedido) => pedido.mesa == mesaController.text,
-            orElse: () => Pedido(
-              itens: [],
-              mesa: mesaController.text,
-              observacao: '',
-            ),
-          );
-
-          if (pedidos.length < 10) {
-            setState(() {
-              pedidoExistente.itens.add(itemPedido);
-
-              if (!pedidos.contains(pedidoExistente)) {
-                pedidos.add(pedidoExistente);
-              }
-
-              quantidadeController.clear();
-              observacaoController.clear();
-            });
-          } else {
-            print('A lista de pedidos atingiu o tamanho máximo.');
-            // Adicione um feedback ao usuário ou tome a ação apropriada.
-          }
-        } catch (e) {
-          print('Erro ao incluir produto: $e');
+        if (pedidos.isEmpty) {
+          print('Nenhum pedido para registrar.');
+          return;
         }
-      },
+
+        for (Pedido pedido in pedidos) {
+          await _firestore.collection('pedidos').add(pedido.toMap());
+        }
+
+        setState(() {
+          pedidos.clear();
+        });
+
+        print('Pedidos registrados com sucesso!');
+      } catch (e) {
+        print('Erro ao registrar pedidos: $e');
+      }
+    },
+    backgroundColor: const Color(0xff0B518A),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
     ),
-  ),
-),
-const SizedBox(height: 20),
-// ... restante do código ...
-floatingActionButton: FloatingActionButton(
-  onPressed: () async {
-    try {
-      print('Botão "Registrar" pressionado');
-
-      if (pedidos.isEmpty) {
-        print('Nenhum pedido para registrar.');
-        return;
-      }
-
-      for (Pedido pedido in pedidos) {
-        await _firestore.collection('pedidos').add(pedido.toMap());
-      }
-
-      setState(() {
-        pedidos.clear();
-      });
-
-      print('Pedidos registrados com sucesso!');
-    } catch (e) {
-      print('Erro ao registrar pedidos: $e');
-    }
-  },
-  backgroundColor: const Color(0xff0B518A),
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(12),
-  ),
-  child: const Padding(
-    padding: EdgeInsets.all(8.0),
-    child: Text(
-      'Registrar',
-      style: TextStyle(
-        color: Colors.white,
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
+    child: const Padding(
+      padding: EdgeInsets.all(12.0),
+      child: Text(
+        'Registrar',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     ),
   ),
