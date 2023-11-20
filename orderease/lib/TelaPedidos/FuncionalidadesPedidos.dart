@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http; // Importe a biblioteca http
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class Produto {
@@ -103,30 +103,29 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
   int selectedItemIndex = 0;
   List<Pedido> pedidos = [];
 
- @override
+  @override
   void initState() {
     super.initState();
-    carregarProdutosDaAPI(); // Adicione esta linha para carregar os produtos da API
+    carregarProdutosDaAPI();
   }
 
   List<String> categoriasDisponiveis = [];
 
-
-
-Future<void> carregarProdutosDaAPI() async {
+  Future<void> carregarProdutosDaAPI() async {
     try {
-      // Substitua a URL pela URL real da sua API
-      final response = await http.get(Uri.parse('https://orderease-api.onrender.com/api/listar-produtos?status=Ativo'));
+      final response = await http.get(Uri.parse(
+          'https://orderease-api.onrender.com/api/listar-produtos?status=Ativo'));
 
       if (response.statusCode == 200) {
         final List<dynamic> produtosJson = json.decode(response.body);
-        
-        // Mapeie os dados para a lista de produtos
-        itemsDisponiveis = produtosJson.map((produto) => Produto.fromMap(produto)).toList();
 
-        // Atualize as categorias disponíveis
-        categoriasDisponiveis =
-            itemsDisponiveis.map((produto) => produto.categoria).toSet().toList();
+        itemsDisponiveis =
+            produtosJson.map((produto) => Produto.fromMap(produto)).toList();
+
+        categoriasDisponiveis = itemsDisponiveis
+            .map((produto) => produto.categoria)
+            .toSet()
+            .toList();
 
         setState(() {});
       } else {
@@ -138,9 +137,9 @@ Future<void> carregarProdutosDaAPI() async {
   }
 
   @override
- @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text('Funcionalidades de Pedidos'),
       ),
@@ -165,12 +164,16 @@ Future<void> carregarProdutosDaAPI() async {
               ),
             ),
             const SizedBox(height: 20),
-       DropdownButton<String>(
-              value: categoriasDisponiveis.contains(selectedCategory) ? selectedCategory : categoriasDisponiveis.isNotEmpty ? categoriasDisponiveis[0] : '',
+            DropdownButton<String>(
+              value: categoriasDisponiveis.contains(selectedCategory)
+                  ? selectedCategory
+                  : categoriasDisponiveis.isNotEmpty
+                      ? categoriasDisponiveis[0]
+                      : '',
               onChanged: (value) {
                 setState(() {
                   selectedCategory = value!;
-                  selectedItemIndex = 0; // Redefinir o índice selecionado ao mudar a categoria
+                  selectedItemIndex = 0;
                 });
               },
               items: categoriasDisponiveis.map((category) {
@@ -180,10 +183,7 @@ Future<void> carregarProdutosDaAPI() async {
                 );
               }).toList(),
             ),
-
             const SizedBox(height: 20),
-
-            // Dropdown para Itens
             DropdownButton<int>(
               value: selectedItemIndex,
               onChanged: (value) {
@@ -223,6 +223,7 @@ Future<void> carregarProdutosDaAPI() async {
                     EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
               ),
             ),
+            const SizedBox(height: 25),
             TextField(
               controller: observacaoController,
               decoration: InputDecoration(
@@ -235,147 +236,240 @@ Future<void> carregarProdutosDaAPI() async {
                     EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
               ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                try {
-                  print('Botão "Incluir Produto" pressionado');
-                  if (quantidadeController.text.isEmpty) {
-                    throw Exception("A quantidade não pode ser vazia.");
-                  }
+            const SizedBox(height: 20),
+            Container(
+              alignment: Alignment
+                  .centerRight, // Mude esta linha para alinhar à esquerda
+              child: ConstrainedBox(
+                constraints: BoxConstraints.tightFor(width: 200, height: 50),
+                child: ElevatedButton(
+                  onPressed: () {
+                    try {
+                      print('Botão "Incluir Produto" pressionado');
+                      if (quantidadeController.text.isEmpty) {
+                        throw Exception("A quantidade não pode ser vazia.");
+                      }
 
-                  final item = itemsDisponiveis
-                      .where((item) => item.categoria == selectedCategory)
-                      .elementAt(selectedItemIndex);
-                  final quantidade = int.parse(quantidadeController.text);
+                      final item = itemsDisponiveis
+                          .where((item) => item.categoria == selectedCategory)
+                          .elementAt(selectedItemIndex);
+                      final quantidade = int.parse(quantidadeController.text);
 
-                  final observacao = observacaoController.text;
+                      final observacao = observacaoController.text;
 
-                  final itemPedido = ItemPedido(
-                    produto: item,
-                    quantidade: quantidade,
-                    observacao: observacao,
-                  );
+                      final itemPedido = ItemPedido(
+                        produto: item,
+                        quantidade: quantidade,
+                        observacao: observacao,
+                      );
 
-                  // Adicionar um novo item ao pedido existente ou criar um novo pedido
-                  var pedidoExistente = pedidos.firstWhere(
-                    (pedido) => pedido.mesa == mesaController.text,
-                    orElse: () => Pedido(
-                        itens: [], mesa: mesaController.text, observacao: ''),
-                  );
+                      var pedidoExistente = pedidos.firstWhere(
+                        (pedido) => pedido.mesa == mesaController.text,
+                        orElse: () => Pedido(
+                          itens: [],
+                          mesa: mesaController.text,
+                          observacao: '',
+                        ),
+                      );
 
-                  setState(() {
-                    pedidoExistente.itens.add(itemPedido);
+                      if (pedidos.length < 10) {
+                        setState(() {
+                          pedidoExistente.itens.add(itemPedido);
 
-                    if (!pedidos.contains(pedidoExistente)) {
-                      pedidos.add(pedidoExistente);
+                          if (!pedidos.contains(pedidoExistente)) {
+                            pedidos.add(pedidoExistente);
+                          }
+
+                          quantidadeController.clear();
+                          observacaoController.clear();
+                        });
+                      } else {
+                        print('A lista de pedidos atingiu o tamanho máximo.');
+                        // Adicione um feedback ao usuário ou tome a ação apropriada.
+                      }
+                    } catch (e) {
+                      print('Erro ao incluir produto: $e');
                     }
-
-                    // Limpar os controladores
-                    quantidadeController.clear();
-                    observacaoController.clear();
-                  });
-                } catch (e) {
-                  // Tratamento de erros
-                  print('Erro ao incluir produto: $e');
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xff0B518A),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                minimumSize: const Size(200, 50),
-              ),
-              child: const Text(
-                'Incluir Produto',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff0B518A),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    minimumSize: const Size(200, 50),
+                  ),
+                  child: const Text(
+                    'Incluir Produto',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 20),
+            Expanded(
+              child: ListView.builder(
+ itemCount: pedidos.length > 5 ? 5 : pedidos.length,                itemBuilder: (context, index) {
+                  final pedido = pedidos[index];
 
-            // Lista de pedidos
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: pedidos.map((pedido) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: pedido.itens.map((item) {
-                    return ListTile(
-                      title: Text(
-                        '${item.produto.nome} - ${item.quantidade}',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      subtitle: Text(
-                        'Mesa: ${pedido.mesa}, Observação: ${pedido.observacao}',
-                      ),
-                      trailing: IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: () {
-                          setState(() {
-                            // Remover o item do pedido
-                            pedido.itens.remove(item);
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ...pedido.itens.map((item) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ListTile(
+                              title: Text(
+                                '${item.produto.nome}',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Quantidade: ${item.quantidade}',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  if (item.observacao.isNotEmpty)
+                                    Text(
+                                      'Observação: ${item.observacao}',
+                                      style: TextStyle(fontSize: 14),
+                                    ),
+                                  Text(
+                                    'Mesa: ${pedido.mesa}',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                              trailing: IconButton(
+                                icon: Icon(Icons.delete),
+                                onPressed: () {
+                                  setState(() {
+                                    pedido.itens.remove(item);
 
-                            // Se não houver mais itens no pedido, remover o pedido
-                            if (pedido.itens.isEmpty) {
-                              pedidos.remove(pedido);
-                            }
-                          });
-                        },
-                      ),
-                    );
-                  }).toList(),
-                );
-              }).toList(),
+                                    if (pedido.itens.isEmpty) {
+                                      pedidos.remove(pedido);
+                                    }
+                                  });
+                                },
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                          ],
+                        );
+                      }).toList(),
+                    ],
+                  );
+                },
+              ),
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          try {
-            print('Botão "Registrar" pressionado');
-
-            // Verificar se há pedidos para registrar
-            if (pedidos.isEmpty) {
-              print('Nenhum pedido para registrar.');
-              return;
-            }
-
-            // Enviar pedidos para o Firestore
-            for (Pedido pedido in pedidos) {
-              await _firestore.collection('pedidos').add(pedido.toMap());
-            }
-
-            // Limpar a lista de pedidos após enviar para o Firestore
-            setState(() {
-              pedidos.clear();
-            });
-
-            print('Pedidos registrados com sucesso!');
-          } catch (e) {
-            // Tratamento de erros
-            print('Erro ao registrar pedidos: $e');
+  Container(
+  alignment: Alignment.centerRight,
+  child: ConstrainedBox(
+    constraints: BoxConstraints.tightFor(width: 200, height: 50),
+    child: buildButton(
+      'Incluir Produto',
+      () {
+        try {
+          print('Botão "Incluir Produto" pressionado');
+          if (quantidadeController.text.isEmpty) {
+            throw Exception("A quantidade não pode ser vazia.");
           }
-        },
-        backgroundColor: const Color(0xff0B518A), // Cor de fundo
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
 
-        child: const Text(
-          'Registrar',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+          final item = itemsDisponiveis
+              .where((item) => item.categoria == selectedCategory)
+              .elementAt(selectedItemIndex);
+          final quantidade = int.parse(quantidadeController.text);
+
+          final observacao = observacaoController.text;
+
+          final itemPedido = ItemPedido(
+            produto: item,
+            quantidade: quantidade,
+            observacao: observacao,
+          );
+
+          var pedidoExistente = pedidos.firstWhere(
+            (pedido) => pedido.mesa == mesaController.text,
+            orElse: () => Pedido(
+              itens: [],
+              mesa: mesaController.text,
+              observacao: '',
+            ),
+          );
+
+          if (pedidos.length < 10) {
+            setState(() {
+              pedidoExistente.itens.add(itemPedido);
+
+              if (!pedidos.contains(pedidoExistente)) {
+                pedidos.add(pedidoExistente);
+              }
+
+              quantidadeController.clear();
+              observacaoController.clear();
+            });
+          } else {
+            print('A lista de pedidos atingiu o tamanho máximo.');
+            // Adicione um feedback ao usuário ou tome a ação apropriada.
+          }
+        } catch (e) {
+          print('Erro ao incluir produto: $e');
+        }
+      },
+    ),
+  ),
+),
+const SizedBox(height: 20),
+// ... restante do código ...
+floatingActionButton: FloatingActionButton(
+  onPressed: () async {
+    try {
+      print('Botão "Registrar" pressionado');
+
+      if (pedidos.isEmpty) {
+        print('Nenhum pedido para registrar.');
+        return;
+      }
+
+      for (Pedido pedido in pedidos) {
+        await _firestore.collection('pedidos').add(pedido.toMap());
+      }
+
+      setState(() {
+        pedidos.clear();
+      });
+
+      print('Pedidos registrados com sucesso!');
+    } catch (e) {
+      print('Erro ao registrar pedidos: $e');
+    }
+  },
+  backgroundColor: const Color(0xff0B518A),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(12),
+  ),
+  child: const Padding(
+    padding: EdgeInsets.all(8.0),
+    child: Text(
+      'Registrar',
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+    ),
+  ),
+),
+floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
     );
   }
 }
