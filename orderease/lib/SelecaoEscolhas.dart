@@ -21,7 +21,7 @@ class SelecaoEscolhas extends StatelessWidget {
         ),
       ),
       endDrawer: const MenuLateral(),
-           // Use endDrawer to display the menu on the left
+      // Use endDrawer to display the menu on the left
       body: Center(
         child: Container(
           width: 370,
@@ -55,7 +55,7 @@ class SelecaoEscolhas extends StatelessWidget {
               CustomLargeButton(
                 text: 'Pedidos',
                 onPressed: () {
-                  // Ação para "Pedidos"
+                  Navigator.pushNamed(context, '/ConsultarPedidos');
                 },
               ),
               const SizedBox(height: 37),

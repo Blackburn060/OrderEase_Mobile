@@ -7,7 +7,8 @@ import 'Telainicial.dart';
 import 'LoginPage.dart';
 import 'firebase_options.dart';
 import 'TelaPedidos/FuncionalidadesPedidos.dart';
-import 'EncerrarPedido/SelecaoMesa.dart'; 
+import 'EncerrarPedido/SelecaoMesa.dart';
+import 'TelaPedidos/ConsultaPedidos.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
         '/MenuLateral': (context) => const SelecaoEscolhas(),
         '/RegistroPedidos': (context) => const FuncionalidadesPedidos(),
         '/SelecaoMesa': (context) => const SelecaoMesa(),
+        '/ConsultarPedidos': (context) => ConsultaPedidos(),
       },
     );
   }
