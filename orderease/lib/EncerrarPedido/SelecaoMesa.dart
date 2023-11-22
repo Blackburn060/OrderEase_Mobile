@@ -22,7 +22,7 @@ class SelecaoMesa extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.menu),
             onPressed: () {
-              // Adicione a lógica para abrir o menu lateral aqui
+              // FALTA IMPLEMENTAR O MENU LATERAL
             },
           ),
         ],
@@ -58,8 +58,8 @@ class SelecaoMesa extends StatelessWidget {
                       },
                       style: ElevatedButton.styleFrom(
                         padding: EdgeInsets.all(20),
-                        minimumSize: Size(double.infinity, 0), // Largura total da tela
-                        primary: const Color(0xff203F97), // Cor de fundo
+                        minimumSize: Size(double.infinity, 0),
+                        primary: const Color(0xff203F97), 
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16.0), // Borda arredondada
                         ),
@@ -67,7 +67,7 @@ class SelecaoMesa extends StatelessWidget {
                       child: Text(
                         'Mesa $numeroMesa',
                         style: TextStyle(
-                          fontSize: 30,
+                          fontSize: 16,
                           color: Colors.white, // Cor do texto
                         ),
                       ),
@@ -85,11 +85,11 @@ class SelecaoMesa extends StatelessWidget {
                     alignment: Alignment.bottomLeft,
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        Navigator.pop(context); // Voltar para a tela anterior
+                        Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16.0), // Borda arredondada
+                          borderRadius: BorderRadius.circular(16.0),
                         ),
                       ),
                       icon: Icon(Icons.arrow_back, color: Colors.black),
