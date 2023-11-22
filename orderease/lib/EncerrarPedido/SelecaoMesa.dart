@@ -18,6 +18,14 @@ class SelecaoMesa extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () {
+              // Adicione a lógica para abrir o menu lateral aqui
+            },
+          ),
+        ],
       ),
       body: Center(
         child: Container(
@@ -42,40 +50,59 @@ class SelecaoMesa extends StatelessWidget {
               snapshot.data!.docs.forEach((doc) {
                 var numeroMesa = doc['mesa'];
                 mesaButtons.add(
-                  ElevatedButton(
-                    onPressed: () {
-                      _navigateToEncerrarPedidos(context, int.parse(numeroMesa));
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.all(20),
-                    ),
-                    child: Text(
-                      'Mesa $numeroMesa',
-                      style: TextStyle(fontSize: 30),
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 10),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _navigateToEncerrarPedidos(context, int.parse(numeroMesa));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.all(20),
+                        minimumSize: Size(double.infinity, 0), // Largura total da tela
+                        primary: const Color(0xff203F97), // Cor de fundo
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16.0), // Borda arredondada
+                        ),
+                      ),
+                      child: Text(
+                        'Mesa $numeroMesa',
+                        style: TextStyle(
+                          fontSize: 30,
+                          color: Colors.white, // Cor do texto
+                        ),
+                      ),
                     ),
                   ),
                 );
-                mesaButtons.add(const SizedBox(height: 16));
               });
-
-              mesaButtons.add(
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Voltar para a tela anterior
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.all(20),
-                  ),
-                  child: const Text(
-                    'Voltar',
-                    style: TextStyle(fontSize: 30),
-                  ),
-                ),
-              );
 
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: mesaButtons,
+                children: [
+                  ...mesaButtons,
+                  Container(
+                    margin: EdgeInsets.only(top: 10, bottom: 10),
+                    alignment: Alignment.bottomLeft,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context); // Voltar para a tela anterior
+                      },
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16.0), // Borda arredondada
+                        ),
+                      ),
+                      icon: Icon(Icons.arrow_back, color: Colors.black),
+                      label: const Text(
+                        'Voltar',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black, // Cor do texto
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               );
             },
           ),
