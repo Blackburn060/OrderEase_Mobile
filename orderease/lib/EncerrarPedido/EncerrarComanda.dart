@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
+//import 'package:cloud_firestore/cloud_firestore.dart';
 
-class EncerrarPedidos extends StatefulWidget {
+class EncerrarPedidos extends StatelessWidget {
   final int mesa;
 
   const EncerrarPedidos({Key? key, required this.mesa}) : super(key: key);
 
   @override
-  _EncerrarPedidosState createState() => _EncerrarPedidosState();
-}
-
-class _EncerrarPedidosState extends State<EncerrarPedidos> {
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Encerrar Pedidos - Mesa ${widget.mesa}'),
+        backgroundColor: const Color(0xff203F97),
+        title: Text('Encerrar Pedidos - Mesa $mesa'),
         actions: [
           IconButton(
             icon: const Icon(Icons.menu),
-            onPressed: () {},
+            onPressed: () {
+              // Lógica para abrir o menu lateral
+            },
           ),
         ],
       ),
@@ -33,13 +32,15 @@ class _EncerrarPedidosState extends State<EncerrarPedidos> {
             ElevatedButton(
               onPressed: () {
                 // Lógica para encerrar a comanda
+                _encerrarComanda(context);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xff0B518A),
+                padding: EdgeInsets.all(20),
+                minimumSize: const Size(double.infinity, 0),
+                primary: const Color(0xff0B518A),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                minimumSize: const Size(200, 50),
               ),
               child: const Text(
                 'Encerrar Comanda',
@@ -57,13 +58,23 @@ class _EncerrarPedidosState extends State<EncerrarPedidos> {
         onPressed: () {
           Navigator.pop(context); // Voltar para a tela anterior
         },
-        backgroundColor: Colors.blue,
+        backgroundColor: const Color(0xff203F97),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
         child: const Icon(Icons.arrow_back),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+    );
+  }
+
+  void _encerrarComanda(BuildContext context) {
+    // Implemente a lógica para encerrar a comanda aqui
+    // Pode incluir a atualização do status do pedido, etc.
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Comanda encerrada com sucesso!'),
+      ),
     );
   }
 }
