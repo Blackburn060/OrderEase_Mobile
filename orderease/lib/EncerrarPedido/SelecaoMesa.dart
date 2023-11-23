@@ -74,28 +74,6 @@ class SelecaoMesa extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ...mesaButtons,
-                  Container(
-                    margin: EdgeInsets.only(top: 10, bottom: 10),
-                    alignment: Alignment.bottomLeft,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                        ),
-                      ),
-                      icon: Icon(Icons.arrow_back, color: Colors.black),
-                      label: const Text(
-                        'Voltar',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black, // Cor do texto
-                        ),
-                      ),
-                    ),
-                  ),
                 ],
               );
             },

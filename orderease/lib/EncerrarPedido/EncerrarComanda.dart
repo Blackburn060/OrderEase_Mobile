@@ -56,16 +56,6 @@ class EncerrarPedidos extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pop(context); // Voltar para a tela anterior
-        },
-        backgroundColor: const Color(0xff203F97),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: const Icon(Icons.arrow_back),
-      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
     );
   }
