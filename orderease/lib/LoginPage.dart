@@ -26,13 +26,11 @@ class _LoginPageState extends State<LoginPage> {
         email: _emailController.text,
         password: _passwordController.text,
       );
-      // Autenticação bem-sucedida, você pode redirecionar o usuário para a próxima tela.
       Navigator.pushNamed(context, '/SelecaoEscolhas');
     } catch (e) {
-      // Tratar erros de autenticação, como senha incorreta ou usuário não encontrado.
       setState(() {
         _errorText =
-            'E-mail ou senha incorretos'; // Atualiza a mensagem de erro
+            'E-mail ou senha incorretos'; 
       });
     }
   }
@@ -111,15 +109,15 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(
-                      top: 50.0), // Mover o botão para baixo
+                      top: 50.0), 
                   child: ElevatedButton(
                     onPressed: _login,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(
-                          255, 11, 81, 138), // Cor de fundo do botão
+                          255, 11, 81, 138), 
                       shape: RoundedRectangleBorder(
                         borderRadius:
-                            BorderRadius.circular(12), // Borda arredondada
+                            BorderRadius.circular(12),
                       ),
                       side: const BorderSide(
                         color: Colors.black,
