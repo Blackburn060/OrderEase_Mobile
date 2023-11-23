@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:orderease/EncerrarPedido/EncerrarComanda.dart';
+import 'package:orderease/MenuLateral.dart';
 
 class SelecaoMesa extends StatelessWidget {
   const SelecaoMesa({Key? key}) : super(key: key);
@@ -18,15 +19,8 @@ class SelecaoMesa extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.menu),
-            onPressed: () {
-              // FALTA IMPLEMENTAR O MENU LATERAL
-            },
-          ),
-        ],
       ),
+      endDrawer: const MenuLateral(),
       body: Center(
         child: Container(
           padding: const EdgeInsets.all(16),

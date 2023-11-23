@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:orderease/MenuLateral.dart';
 
 class EncerrarPedidos extends StatefulWidget {
   final int mesa;
@@ -15,13 +16,9 @@ class _EncerrarPedidosState extends State<EncerrarPedidos> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Encerrar Pedidos - Mesa ${widget.mesa}'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () {},
-          ),
-        ],
+        
       ),
+      endDrawer: const MenuLateral(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
