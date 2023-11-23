@@ -3,17 +3,33 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:orderease/MenuLateral.dart';
 
 class Produto {
   final String nome;
   final String categoria;
+  final double valor;
 
-  Produto({required this.nome, required this.categoria});
+  Produto({required this.nome, required this.categoria, required dynamic valor})
+      : valor = _parseDouble(valor);
+
+  static double _parseDouble(dynamic value) {
+    if (value is double) {
+      return value;
+    } else if (value is int) {
+      return value.toDouble();
+    } else if (value is String) {
+      return double.tryParse(value.replaceAll(',', '.')) ?? 0.0;
+    } else {                                                      
+      return 0.0;
+    }
+  }
 
   Map<String, dynamic> toMap() {
     return {
       'nome': nome,
       'categoria': categoria,
+      'valor': valor,
     };
   }
 
@@ -21,6 +37,7 @@ class Produto {
     return Produto(
       nome: map['nome'],
       categoria: map['categoria'],
+      valor: map['valor'] ?? 0.0,
     );
   }
 }
@@ -54,31 +71,68 @@ class ItemPedido {
 }
 
 class Pedido {
+  static int _proximoNumeroPedido = 1;
+
+  final int numeroPedido;
   final String mesa;
   final String observacao;
   final List<ItemPedido> itens;
+  final String status;
+  double valorTotal;
 
-  Pedido({
+  Pedido._internal({
+    required this.numeroPedido,
     required this.mesa,
     required this.observacao,
     required this.itens,
+    this.status = 'Aguardando',
+    this.valorTotal = 0.0,
   });
+
+  factory Pedido.fromFirestore(Map<String, dynamic> map) {
+    return Pedido._internal(
+      numeroPedido: map['numeroPedido'],
+      mesa: map['mesa'],
+      observacao: map['observacao'],
+      itens: (map['itens'] as List)
+          .map((item) => ItemPedido.fromMap(item))
+          .toList(),
+      status: map['status'] ?? 'aguardando',
+      valorTotal: 0.0,
+    );
+  }
+
+  static Future<int> getProximoNumeroPedido() async {
+    final querySnapshot =
+        await FirebaseFirestore.instance.collection('pedidos').get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      final ultimaPedido = querySnapshot.docs.last.data();
+      return ultimaPedido['numeroPedido'] + 1;
+    } else {
+      return 1;
+    }
+  }
 
   Map<String, dynamic> toMap() {
     return {
+      'numeroPedido': numeroPedido,
       'itens': itens.map((item) => item.toMap()).toList(),
       'mesa': mesa,
-
+      'status': status,
     };
   }
 
   factory Pedido.fromMap(Map<String, dynamic> map) {
     var itens =
         (map['itens'] as List).map((item) => ItemPedido.fromMap(item)).toList();
-    return Pedido(
+    return Pedido._internal(
+      numeroPedido: map['numeroPedido'],
       mesa: map['mesa'],
       observacao: map['observacao'],
       itens: itens,
+      status: map['status'] ?? 'aguardando',
+      valorTotal: 0.0,
     );
   }
 }
@@ -119,9 +173,15 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
       if (response.statusCode == 200) {
         final List<dynamic> produtosJson = json.decode(response.body);
 
-        itemsDisponiveis =
-            produtosJson.map((produto) => Produto.fromMap(produto)).toList();
-
+        itemsDisponiveis = produtosJson.map((produto) {
+          final valor = produto['valor'];
+          print('Valor bruto da API: $valor');
+          return Produto(
+            nome: produto['nome'],
+            categoria: produto['categoria'],
+            valor: valor,
+          );
+        }).toList();
         categoriasDisponiveis = itemsDisponiveis
             .map((produto) => produto.categoria)
             .toSet()
@@ -162,8 +222,10 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: const Text('Funcionalidades de Pedidos'),
+        title: const Text('Registro de Pedido'),
+        backgroundColor: const Color(0xff0B518A),
       ),
+      // endDrawer: MenuLateral(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -171,7 +233,7 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
           children: <Widget>[
             const SizedBox(height: 1),
             SizedBox(
-              width: 150,
+              width: 60,
               child: TextField(
                 controller: mesaController,
                 keyboardType: TextInputType.number,
@@ -227,7 +289,7 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             TextField(
               controller: quantidadeController,
               keyboardType: TextInputType.number,
@@ -261,13 +323,29 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
             Container(
               alignment: Alignment.centerRight,
               child: ConstrainedBox(
-                constraints: BoxConstraints.tightFor(width: 200, height: 50),
-                child: buildButton('Incluir Produto', () {
+                constraints: BoxConstraints.tightFor(width: 170, height: 50),
+                child: buildButton('Incluir Produto', () async {
                   try {
                     print('Botão "Incluir Produto" pressionado');
                     if (quantidadeController.text.isEmpty) {
                       throw Exception("A quantidade não pode ser vazia.");
                     }
+
+                    var proximoNumeroPedido =
+                        await Pedido.getProximoNumeroPedido();
+                    var pedidoExistente = pedidos.firstWhere(
+                      (pedido) => pedido.mesa == mesaController.text,
+                      orElse: () {
+                        var novoPedido = Pedido._internal(
+                          numeroPedido: proximoNumeroPedido,
+                          mesa: mesaController.text,
+                          observacao: '',
+                          itens: [],
+                        );
+                        pedidos.add(novoPedido);
+                        return novoPedido;
+                      },
+                    );
 
                     final item = itemsDisponiveis
                         .where((item) => item.categoria == selectedCategory)
@@ -280,15 +358,6 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
                       produto: item,
                       quantidade: quantidade,
                       observacao: observacao,
-                    );
-
-                    var pedidoExistente = pedidos.firstWhere(
-                      (pedido) => pedido.mesa == mesaController.text,
-                      orElse: () => Pedido(
-                        itens: [],
-                        mesa: mesaController.text,
-                        observacao: '',
-                      ),
                     );
 
                     setState(() {
@@ -370,49 +439,52 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
           ],
         ),
       ),
-   floatingActionButton: SizedBox(
-  width: 120.0, // Defina o tamanho desejado aqui
-  child: FloatingActionButton(
-    onPressed: () async {
-      try {
-        print('Botão "Registrar" pressionado');
+      floatingActionButton: SizedBox(
+        width: 120.0,
+        child: FloatingActionButton(
+          onPressed: () async {
+            try {
+              print('Botão "Registrar" pressionado');
 
-        if (pedidos.isEmpty) {
-          print('Nenhum pedido para registrar.');
-          return;
-        }
+              if (pedidos.isEmpty) {
+                print('Nenhum pedido para registrar.');
+                return;
+              }
 
-        for (Pedido pedido in pedidos) {
-          await _firestore.collection('pedidos').add(pedido.toMap());
-        }
+              for (Pedido pedido in pedidos) {
+                await _firestore.collection('pedidos').add({
+                  ...pedido.toMap(),
+                  'numeroPedido': pedido.numeroPedido,
+                });
+              }
 
-        setState(() {
-          pedidos.clear();
-        });
+              setState(() {
+                pedidos.clear();
+              });
 
-        print('Pedidos registrados com sucesso!');
-      } catch (e) {
-        print('Erro ao registrar pedidos: $e');
-      }
-    },
-    backgroundColor: const Color(0xff0B518A),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: const Padding(
-      padding: EdgeInsets.all(12.0),
-      child: Text(
-        'Registrar',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
+              print('Pedidos registrados com sucesso!');
+            } catch (e) {
+              print('Erro ao registrar pedidos: $e');
+            }
+          },
+          backgroundColor: const Color(0xff0B518A),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Padding(
+            padding: EdgeInsets.all(12.0),
+            child: Text(
+              'Registrar',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
         ),
       ),
-    ),
-  ),
-),
-floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
     );
   }
 }
