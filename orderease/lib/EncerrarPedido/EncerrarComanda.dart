@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-//import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:orderease/MenuLateral.dart';
+//import 'package:orderease/MenuLateral.dart';
+import '../menulateral.dart';
 
 class EncerrarPedidos extends StatelessWidget {
   final int mesa;
@@ -11,18 +11,17 @@ class EncerrarPedidos extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xff203F97),
-        title: Text('Encerrar Pedidos - Mesa $mesa'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () {
-              // Lógica para abrir o menu lateral
-            },
-          ),
-        ],
+      backgroundColor: const Color(0xff203F97),
+      title: Text(
+        'Encerrar Pedidos - Mesa $mesa',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
       ),
-      endDrawer: const MenuLateral(),
+    ),
+    endDrawer: const MenuLateral(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

@@ -55,7 +55,7 @@ class SelecaoMesa extends StatelessWidget {
                         minimumSize: Size(double.infinity, 0),
                         primary: const Color(0xff203F97), 
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16.0), // Borda arredondada
+                          borderRadius: BorderRadius.circular(8.0), // Borda arredondada
                         ),
                       ),
                       child: Text(
