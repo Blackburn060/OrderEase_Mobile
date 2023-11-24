@@ -55,14 +55,15 @@ class SelecaoMesa extends StatelessWidget {
                         minimumSize: Size(double.infinity, 0),
                         primary: const Color(0xff203F97), 
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0), // Borda arredondada
+                          borderRadius: BorderRadius.circular(8.0),
+                          side: BorderSide(color: Color.fromARGB(255, 223, 222, 218)),
                         ),
                       ),
                       child: Text(
                         'Mesa $numeroMesa',
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.white, // Cor do texto
+                          color: Colors.white,
                         ),
                       ),
                     ),
