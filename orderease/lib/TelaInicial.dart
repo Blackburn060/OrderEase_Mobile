@@ -69,7 +69,7 @@ class TelaInicial extends StatelessWidget {
             CustomButton(
               text: 'COZINHA',
               onPressed: () {
-                // Ação para "Registrar Consumo"
+                Navigator.pushNamed(context, '/TelaCozinha');
               },
             ),
           ],

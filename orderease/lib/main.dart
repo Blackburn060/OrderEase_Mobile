@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-/*import 'package:cloud_firestore/cloud_firestore.dart';
-import 'TelaPrincipal.dart';*/
+import 'Cozinha/TelaCozinha.dart';
 import 'SelecaoEscolhas.dart';
 import 'Telainicial.dart';
 import 'LoginPage.dart';
@@ -32,7 +31,8 @@ class MyApp extends StatelessWidget {
         '/MenuLateral': (context) => const SelecaoEscolhas(),
         '/RegistroPedidos': (context) => const FuncionalidadesPedidos(),
         '/SelecaoMesa': (context) => const SelecaoMesa(),
-        '/ConsultarPedidos': (context) => ConsultaPedidos(),
+        '/ConsultarPedidos': (context) => const ConsultaPedidos(),
+        '/TelaCozinha': (context) => const TelaCozinha(), // Adicione esta linha
       },
     );
   }
