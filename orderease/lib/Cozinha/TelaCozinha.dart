@@ -105,18 +105,18 @@ class TelaCozinhaState extends State<TelaCozinha> {
   late List<Pedido> pedidos;
   late Timer timer;
 
-  @override
+   @override
   void initState() {
     super.initState();
     pedidos = [];
-   Timer.periodic(Duration(seconds: 3), (Timer timer) {
+    timer = Timer.periodic(Duration(seconds: 300), (Timer timer) {
       fetchPedidos();
       print('Tela atualizada.');
     });
-
   }
 
-   Future<void> fetchPedidos() async {
+ 
+  Future<void> fetchPedidos() async {
     try {
       final response = await http.get(
         Uri.parse('https://orderease-api.onrender.com/api/obter-pedidos'),
@@ -155,8 +155,9 @@ class TelaCozinhaState extends State<TelaCozinha> {
       print('Error fetching pedidos: $e');
     }
   }
- @override
-        void dispose() {
+
+  @override
+  void dispose() {
     timer.cancel(); // Cancela o timer ao sair da tela para evitar vazamentos de recursos
     super.dispose();
   }
@@ -258,7 +259,6 @@ class TelaCozinhaState extends State<TelaCozinha> {
                                         '  - ${item.produto.nome} (${item.quantidade}x)',
                                         style: TextStyle(color: Colors.white),
                                       ),
-                                   
                                     if (item.observacao != null)
                                       Text(
                                         '    Observação: ${item.observacao}',
@@ -290,7 +290,6 @@ class TelaCozinhaState extends State<TelaCozinha> {
                           // Adicione aqui o que você quer fazer ao clicar em um pedido
                         },
                       ),
-                     
                       const SizedBox(height: 16.0),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -305,11 +304,11 @@ class TelaCozinhaState extends State<TelaCozinha> {
                             style: ElevatedButton.styleFrom(
                               primary: Colors.orange,
                               onPrimary: Colors.white,
-                               shape: RoundedRectangleBorder(
+                              shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
                             ),
-                           child: Text('Preparando'),
+                            child: Text('Preparando'),
                           ),
                           ElevatedButton(
                             onPressed: () {
@@ -319,11 +318,13 @@ class TelaCozinhaState extends State<TelaCozinha> {
                                 builder: (BuildContext context) {
                                   return AlertDialog(
                                     title: Text('Confirmar'),
-                                    content: Text('Deseja marcar o pedido como "Finalizado"?'),
+                                    content: Text(
+                                        'Deseja marcar o pedido como "Finalizado"?'),
                                     actions: [
                                       TextButton(
                                         onPressed: () {
-                                          Navigator.of(context).pop(); // Fecha o diálogo
+                                          Navigator.of(context)
+                                              .pop(); // Fecha o diálogo
                                         },
                                         child: Text('Cancelar'),
                                       ),
@@ -331,12 +332,14 @@ class TelaCozinhaState extends State<TelaCozinha> {
                                         onPressed: () {
                                           // Lógica para marcar como "Finalizado"
                                           setState(() {
-                                            pedidos[index].status = 'Finalizado';
+                                            pedidos[index].status =
+                                                'Finalizado';
                                           });
 
                                           // Atualiza o status no banco de dados
 
-                                          Navigator.of(context).pop(); // Fecha o diálogo
+                                          Navigator.of(context)
+                                              .pop(); // Fecha o diálogo
                                         },
                                         child: Text('Confirmar'),
                                       ),
