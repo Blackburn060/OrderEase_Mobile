@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:orderease/MenuLateral.dart';
 
 class Produto {
   final String nome;
@@ -20,7 +19,7 @@ class Produto {
       return value.toDouble();
     } else if (value is String) {
       return double.tryParse(value.replaceAll(',', '.')) ?? 0.0;
-    } else {                                                      
+    } else {
       return 0.0;
     }
   }
@@ -86,7 +85,7 @@ class Pedido {
     required this.observacao,
     required this.itens,
     this.status = 'Aguardando',
-    this.valorTotal = 0.0,
+    required this.valorTotal,
   });
 
   factory Pedido.fromFirestore(Map<String, dynamic> map) {
@@ -120,6 +119,7 @@ class Pedido {
       'itens': itens.map((item) => item.toMap()).toList(),
       'mesa': mesa,
       'status': status,
+      'valorTotal': valorTotal, // Inclua o valor total no mapeamento
     };
   }
 
@@ -132,7 +132,8 @@ class Pedido {
       observacao: map['observacao'],
       itens: itens,
       status: map['status'] ?? 'aguardando',
-      valorTotal: 0.0,
+      valorTotal:
+          map['valorTotal'] ?? 0.0, // Valor padrão 0.0 se não estiver presente
     );
   }
 }
@@ -196,6 +197,11 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
     }
   }
 
+ double calcularTotalPedido(Pedido pedido) {
+  return pedido.itens.fold(0.0, (total, item) {
+    return total + (item.produto.valor * item.quantidade);
+  });
+}
   ElevatedButton buildButton(String text, VoidCallback onPressed) {
     return ElevatedButton(
       onPressed: onPressed,
@@ -225,7 +231,6 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
         title: const Text('Registro de Pedido'),
         backgroundColor: const Color(0xff0B518A),
       ),
-      // endDrawer: MenuLateral(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -302,8 +307,8 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),
                 ),
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+                contentPadding: const EdgeInsets.symmetric(
+                    vertical: 16.0, horizontal: 12.0),
               ),
             ),
             const SizedBox(height: 25),
@@ -315,15 +320,18 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),
                 ),
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+                contentPadding: const EdgeInsets.symmetric(
+                    vertical: 16.0, horizontal: 12.0),
               ),
             ),
             const SizedBox(height: 20),
             Container(
+              
               alignment: Alignment.centerRight,
               child: ConstrainedBox(
-                constraints: BoxConstraints.tightFor(width: 170, height: 50),
+              
+                constraints:
+                    const BoxConstraints.tightFor(width: 170, height: 50),
                 child: buildButton('Incluir Produto', () async {
                   try {
                     print('Botão "Incluir Produto" pressionado');
@@ -341,6 +349,7 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
                           mesa: mesaController.text,
                           observacao: '',
                           itens: [],
+                          valorTotal: 0.0, // Adicione esta linha
                         );
                         pedidos.add(novoPedido);
                         return novoPedido;
@@ -362,6 +371,8 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
 
                     setState(() {
                       pedidoExistente.itens.add(itemPedido);
+                      pedidoExistente.valorTotal =
+                          calcularTotalPedido(pedidoExistente);
 
                       if (!pedidos.contains(pedidoExistente)) {
                         pedidos.add(pedidoExistente);
@@ -382,6 +393,7 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
                 itemCount: pedidos.length,
                 itemBuilder: (context, index) {
                   final pedido = pedidos[index];
+                  final totalPedido = calcularTotalPedido(pedido);
 
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -393,28 +405,28 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
                             ListTile(
                               title: Text(
                                 '${item.produto.nome}',
-                                style: TextStyle(fontSize: 16),
+                                style: const TextStyle(fontSize: 16),
                               ),
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     'Quantidade: ${item.quantidade}',
-                                    style: TextStyle(fontSize: 14),
+                                    style: const TextStyle(fontSize: 14),
                                   ),
                                   if (item.observacao.isNotEmpty)
                                     Text(
                                       'Observação: ${item.observacao}',
-                                      style: TextStyle(fontSize: 14),
+                                      style: const TextStyle(fontSize: 14),
                                     ),
                                   Text(
                                     'Mesa: ${pedido.mesa}',
-                                    style: TextStyle(fontSize: 14),
+                                    style: const TextStyle(fontSize: 14),
                                   ),
                                 ],
                               ),
                               trailing: IconButton(
-                                icon: Icon(Icons.delete),
+                                icon: const Icon(Icons.delete),
                                 onPressed: () {
                                   setState(() {
                                     pedido.itens.remove(item);
@@ -426,16 +438,32 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
                                 },
                               ),
                             ),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                           ],
                         );
                       }).toList(),
+
+                      // Exiba o valor total para o pedido à esquerda
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              'Total: R\$ ${totalPedido.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   );
                 },
               ),
             ),
-            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -455,6 +483,8 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
                 await _firestore.collection('pedidos').add({
                   ...pedido.toMap(),
                   'numeroPedido': pedido.numeroPedido,
+                  'valorTotal':
+                      pedido.valorTotal, // Inclua o valor total no documento
                 });
               }
 

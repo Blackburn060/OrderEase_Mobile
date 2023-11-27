@@ -69,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: TextField(
                       controller: _emailController,
                       decoration: InputDecoration(
-                        labelText: 'Usuário',
+                        labelText: 'E-mail',
                         focusedBorder: const UnderlineInputBorder(
                           borderSide: BorderSide(
                             color: Colors.black,

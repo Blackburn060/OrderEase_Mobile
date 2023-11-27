@@ -1,13 +1,73 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import '../menulateral.dart';
+import 'dart:async';
+import 'dart:async' show Timer;
+
+class Produto {
+  final String nome;
+  final String descricao;
+  final String categoria;
+  final double valor;
+  final String status;
+  final String imageUri;
+
+  Produto({
+    required this.nome,
+    required this.descricao,
+    required this.categoria,
+    required this.valor,
+    required this.status,
+    required this.imageUri,
+  });
+
+  factory Produto.fromJson(Map<String, dynamic> json) {
+    return Produto(
+      nome: json['nome'] ?? "",
+      descricao: json['descricao'] ?? "",
+      categoria: json['categoria'] ?? "",
+      valor: (json['valor'] ?? 0.0).toDouble(),
+      status: json['status'] ?? "",
+      imageUri: json['imageUri'] ?? "",
+    );
+  }
+}
+
+class ItemPedido {
+  final Produto produto;
+  final String? nome;
+  final String? descricao;
+  final int? quantidade;
+  final String? observacao;
+  final String? descricaoItem;
+
+  ItemPedido({
+    required this.produto,
+    this.nome,
+    this.descricao,
+    this.quantidade,
+    this.observacao,
+    this.descricaoItem,
+  });
+
+  factory ItemPedido.fromJson(Map<String, dynamic> json) {
+    Map<String, dynamic> produtoJson = json['produto'] ?? {};
+    return ItemPedido(
+      produto: Produto.fromJson(produtoJson),
+      nome: json['nome'],
+      descricao: json['descricao'],
+      quantidade: json['quantidade'],
+      observacao: json['observacao'],
+      descricaoItem: json['descricaoItem'],
+    );
+  }
+}
 
 class Pedido {
-  final int numeroPedido;
-  final String mesa;
-  final String status;
-  final List<Map<String, dynamic>> itens;
+  int numeroPedido;
+  String mesa;
+  String status;
+  List<ItemPedido> itens;
 
   Pedido({
     required this.numeroPedido,
@@ -17,11 +77,19 @@ class Pedido {
   });
 
   factory Pedido.fromJson(Map<String, dynamic> json) {
+    List<dynamic> itensJson = json['itens'];
+    List<ItemPedido> itens = [];
+    if (itensJson != null) {
+      itens = itensJson.map((itemJson) {
+        return ItemPedido.fromJson(itemJson);
+      }).toList();
+    }
+
     return Pedido(
       numeroPedido: json['numeroPedido'],
       mesa: json['mesa'],
       status: json['status'],
-      itens: List<Map<String, dynamic>>.from(json['itens']),
+      itens: itens,
     );
   }
 }
@@ -35,26 +103,62 @@ class TelaCozinha extends StatefulWidget {
 
 class TelaCozinhaState extends State<TelaCozinha> {
   late List<Pedido> pedidos;
+  late Timer timer;
 
   @override
   void initState() {
     super.initState();
     pedidos = [];
-    fetchPedidos();
+   Timer.periodic(Duration(seconds: 3), (Timer timer) {
+      fetchPedidos();
+      print('Tela atualizada.');
+    });
+
   }
 
-  Future<void> fetchPedidos() async {
-    final response = await http.get(
-        Uri.parse('https://orderease-api.onrender.com/api/obter-pedidos'));
-    if (response.statusCode == 200) {
-      List<dynamic> jsonResponse = json.decode(response.body);
-      setState(() {
-        pedidos =
-            jsonResponse.map((data) => Pedido.fromJson(data)).toList();
-      });
-    } else {
-      throw Exception('Failed to load pedidos');
+   Future<void> fetchPedidos() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://orderease-api.onrender.com/api/obter-pedidos'),
+      );
+      if (response.statusCode == 200) {
+        List<dynamic> jsonResponse = json.decode(response.body);
+        setState(() {
+          pedidos = jsonResponse.map((data) {
+            if (data['itens'] != null && data['itens'] is List) {
+              // Verifica se 'itens' existe e é uma lista
+              List<ItemPedido> itens =
+                  (data['itens'] as List).map<ItemPedido>((item) {
+                Map<String, dynamic> produtoJson = item['produto'] ?? {};
+                return ItemPedido.fromJson(item);
+              }).toList();
+              return Pedido(
+                numeroPedido: data['numeroPedido'],
+                mesa: data['mesa'],
+                status: data['status'],
+                itens: itens,
+              );
+            } else {
+              return Pedido(
+                numeroPedido: data['numeroPedido'],
+                mesa: data['mesa'],
+                status: data['status'],
+                itens: [], // Se 'itens' não existir ou não for uma lista, cria uma lista vazia
+              );
+            }
+          }).toList();
+        });
+      } else {
+        print('Failed to load pedidos - Status Code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching pedidos: $e');
     }
+  }
+ @override
+        void dispose() {
+    timer.cancel(); // Cancela o timer ao sair da tela para evitar vazamentos de recursos
+    super.dispose();
   }
 
   @override
@@ -63,63 +167,196 @@ class TelaCozinhaState extends State<TelaCozinha> {
       appBar: AppBar(
         title: const Text('Pedidos - Cozinha'),
       ),
-      endDrawer: MenuLateral(),
       body: pedidos.isEmpty
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
-          : ListView.builder(
+          : ListView.separated(
               itemCount: pedidos.length,
+              separatorBuilder: (BuildContext context, int index) {
+                return const Divider(
+                  color: Color.fromARGB(255, 0, 0, 0),
+                  thickness: 1.2,
+                );
+              },
               itemBuilder: (context, index) {
                 return Card(
+                  color: const Color(0xff0B518A),
                   margin: EdgeInsets.all(16.0),
-                  child: ListTile(
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                  elevation: 4.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    side: BorderSide(color: Colors.black),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ListTile(
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Nº ${pedidos[index].numeroPedido.toString()} - ',
-                            ),
-                            Text(
-                              'Mesa ${pedidos[index].mesa}',
-                            ),
-                            Spacer(),
-                            Container(
-                              padding: const EdgeInsets.all(8.0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(4.0),
-                              ),
-                              child: Text(
-                                pedidos[index].status,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
+                            Row(
+                              children: [
+                                Text(
+                                  'Nº ${pedidos[index].numeroPedido.toString()} - ',
+                                  style: const TextStyle(color: Colors.white),
                                 ),
+                                Text(
+                                  'Mesa ${pedidos[index].mesa}',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                                const Spacer(),
+                                Container(
+                                  padding: const EdgeInsets.all(8.0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(4.0),
+                                  ),
+                                  child: Text(
+                                    pedidos[index].status,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 1.0),
+                            const Divider(
+                              color: Color.fromARGB(255, 0, 0, 0),
+                              thickness: 1.2,
+                            ),
+                            const SizedBox(height: 1.0),
+                            const Text(
+                              'Itens:',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
+                            ),
+                            // Adiciona um ListView separado para os itens
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: pedidos[index].itens.length,
+                              separatorBuilder:
+                                  (BuildContext context, int itemIndex) {
+                                return const Divider(
+                                  color: Color.fromARGB(255, 0, 0, 0),
+                                  thickness: 1.2,
+                                );
+                              },
+                              itemBuilder:
+                                  (BuildContext context, int itemIndex) {
+                                final item = pedidos[index].itens[itemIndex];
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (item.produto.nome != null &&
+                                        item.quantidade != null)
+                                      Text(
+                                        '  - ${item.produto.nome} (${item.quantidade}x)',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                   
+                                    if (item.observacao != null)
+                                      Text(
+                                        '    Observação: ${item.observacao}',
+                                        style: const TextStyle(
+                                          fontStyle: FontStyle.italic,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    if (item.descricaoItem != null)
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 16.0,
+                                        ),
+                                        child: Text(
+                                          '    Descrição do Item: ${item.descricaoItem}',
+                                          style: const TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              },
                             ),
                           ],
                         ),
-                        SizedBox(height: 8.0),
-                        Text(
-                          'Itens:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                        onTap: () {
+                          // Adicione aqui o que você quer fazer ao clicar em um pedido
+                        },
+                      ),
+                     
+                      const SizedBox(height: 16.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              // Lógica para marcar como "Preparando"
+                              setState(() {
+                                pedidos[index].status = 'Preparando';
+                              });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.orange,
+                              onPrimary: Colors.white,
+                               shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                            ),
+                           child: Text('Preparando'),
                           ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: pedidos[index].itens.map((item) {
-                            return Text(
-                              '  - ${item['nome']} (${item['quantidade']}x) - ${item['observacao']}',
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    ),
-                    onTap: () {
-                      // Adicione aqui o que você quer fazer ao clicar em um pedido
-                    },
+                          ElevatedButton(
+                            onPressed: () {
+                              // Exibe uma mensagem de confirmação antes de alterar o status
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text('Confirmar'),
+                                    content: Text('Deseja marcar o pedido como "Finalizado"?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop(); // Fecha o diálogo
+                                        },
+                                        child: Text('Cancelar'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          // Lógica para marcar como "Finalizado"
+                                          setState(() {
+                                            pedidos[index].status = 'Finalizado';
+                                          });
+
+                                          // Atualiza o status no banco de dados
+
+                                          Navigator.of(context).pop(); // Fecha o diálogo
+                                        },
+                                        child: Text('Confirmar'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.green,
+                              onPrimary: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                            ),
+                            child: Text('Finalizado'),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 );
               },
