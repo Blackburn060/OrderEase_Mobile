@@ -351,9 +351,9 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
               child: ConstrainedBox(
                 constraints:
                     const BoxConstraints.tightFor(width: 170, height: 50),
-                child: buildButton('Incluir Produto', () async {
+                child: buildButton('Inserir Item', () async {
                   try {
-                    print('Botão "Incluir Produto" pressionado');
+                    print('Botão "Inserir Item" pressionado');
                     if (quantidadeController.text.isEmpty) {
                       throw Exception("A quantidade não pode ser vazia.");
                     }
