@@ -105,17 +105,16 @@ class TelaCozinhaState extends State<TelaCozinha> {
   late List<Pedido> pedidos;
   late Timer timer;
 
-   @override
+  @override
   void initState() {
     super.initState();
     pedidos = [];
-    timer = Timer.periodic(Duration(seconds: 300), (Timer timer) {
+    timer = Timer.periodic(Duration(seconds: 3), (Timer timer) {
       fetchPedidos();
       print('Tela atualizada.');
     });
   }
 
- 
   Future<void> fetchPedidos() async {
     try {
       final response = await http.get(
@@ -156,9 +155,41 @@ class TelaCozinhaState extends State<TelaCozinha> {
     }
   }
 
+ Future<void> atualizarStatusPedido(String id, String novoStatus) async {
+  final url = 'https://orderease-api.onrender.com/api/atualizar-pedido/$id';
+
+    try {
+      final response = await http.put(
+        Uri.parse(url),
+        body: jsonEncode({'status': novoStatus}),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        print('Status do pedido atualizado com sucesso.');
+      } else {
+        print(
+            'Falha ao atualizar o status do pedido - Status Code: ${response.statusCode}');
+        print('Corpo da resposta: ${response.body}');
+      }
+    } catch (e) {
+      print('Erro ao atualizar o status do pedido: $e');
+    }
+  }
+
+  Future<void> marcarComoPreparando(int index) async {
+    setState(() {
+      pedidos[index].status = 'Preparando';
+    });
+
+    await atualizarStatusPedido(
+        pedidos[index].numeroPedido.toString(), 'Preparando');
+  }
+
   @override
   void dispose() {
-    timer.cancel(); // Cancela o timer ao sair da tela para evitar vazamentos de recursos
+    timer
+        .cancel(); // Cancela o timer ao sair da tela para evitar vazamentos de recursos
     super.dispose();
   }
 
@@ -295,11 +326,9 @@ class TelaCozinhaState extends State<TelaCozinha> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async {
                               // Lógica para marcar como "Preparando"
-                              setState(() {
-                                pedidos[index].status = 'Preparando';
-                              });
+                              await marcarComoPreparando(index);
                             },
                             style: ElevatedButton.styleFrom(
                               primary: Colors.orange,
@@ -311,7 +340,7 @@ class TelaCozinhaState extends State<TelaCozinha> {
                             child: Text('Preparando'),
                           ),
                           ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async {
                               // Exibe uma mensagem de confirmação antes de alterar o status
                               showDialog(
                                 context: context,
@@ -329,7 +358,7 @@ class TelaCozinhaState extends State<TelaCozinha> {
                                         child: Text('Cancelar'),
                                       ),
                                       TextButton(
-                                        onPressed: () {
+                                        onPressed: () async {
                                           // Lógica para marcar como "Finalizado"
                                           setState(() {
                                             pedidos[index].status =
@@ -337,9 +366,14 @@ class TelaCozinhaState extends State<TelaCozinha> {
                                           });
 
                                           // Atualiza o status no banco de dados
+                                          await atualizarStatusPedido(
+                                              pedidos[index]
+                                                  .numeroPedido
+                                                  .toString(), // Converte para String
+                                              'Finalizado');
 
                                           Navigator.of(context)
-                                              .pop(); // Fecha o diálogo
+                                              .pop(); // Fecha o diálogoálogo
                                         },
                                         child: Text('Confirmar'),
                                       ),
