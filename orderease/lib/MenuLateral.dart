@@ -63,31 +63,25 @@ class MenuLateral extends StatelessWidget {
             title: const Text('Início'),
             onTap: () {
               Navigator.pop(context); // Fecha o menu lateral
-              Navigator.pushNamed(
-                  context, '/SelecaoEscolhas'); // Navega para a página de início
+              Navigator.pushNamed(context,
+                  '/SelecaoEscolhas'); // Navega para a página de início
             },
           ),
           ListTile(
             leading: const Icon(Icons.explore),
             title: const Text('Consultar Pedidos'),
             onTap: () {
-              // Adicione ação aqui para navegar para a página de notificações
+              Navigator.pushNamed(context, '/ConsultarPedidos');
             },
           ),
           ListTile(
             leading: const Icon(Icons.notifications),
             title: const Text('Registrar Pedidos'),
             onTap: () {
-              // Adicione ação aqui para navegar para a página de notificações
+              Navigator.pushNamed(context, '/RegistroPedidos');
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.notifications),
-            title: const Text('Mesas'),
-            onTap: () {
-              // Adicione ação aqui para navegar para a página de notificações
-            },
-          ),
+        
           ListTile(
             leading: const Icon(Icons.notifications),
             title: const Text('Encerrar comanda'),
@@ -97,7 +91,7 @@ class MenuLateral extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.settings),
-            title: const Text('Configurações'),
+            title: const Text('Visualizar Cardapio'),
             onTap: () {
               // Adicione ação aqui para navegar para a página de configurações
             },

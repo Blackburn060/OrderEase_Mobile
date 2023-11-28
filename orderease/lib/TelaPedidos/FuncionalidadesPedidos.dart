@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:orderease/MenuLateral.dart';
 
 class Produto {
   final String nome;
@@ -223,6 +224,7 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
     });
   }
 
+
   ElevatedButton buildButton(String text, VoidCallback onPressed) {
     return ElevatedButton(
       onPressed: onPressed,
@@ -252,6 +254,9 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
         title: const Text('Registro de Pedido'),
         backgroundColor: const Color(0xff0B518A),
       ),
+
+      endDrawer: const MenuLateral(),
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -374,6 +379,7 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
                         return novoPedido;
                       },
                     );
+
 
                     final item = itemsDisponiveis
                         .where((item) => item.categoria == selectedCategory)
