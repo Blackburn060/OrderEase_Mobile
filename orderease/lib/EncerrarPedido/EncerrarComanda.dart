@@ -12,12 +12,14 @@ class EncerrarPedidos extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xff203F97),
-        title: Text(
-          'Encerrar Pedidos',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+        title: Center(
+          child: Text(
+            'Encerrar Pedidos',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
@@ -30,7 +32,7 @@ class EncerrarPedidos extends StatelessWidget {
             Container(
               margin: EdgeInsets.only(bottom: 10),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     'Mesa:',
@@ -40,18 +42,27 @@ class EncerrarPedidos extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 8),
-                  Container(
-                    padding: EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                      color: Color(0xff0B518A),
-                      borderRadius: BorderRadius.circular(8.0),
+                  ElevatedButton(
+                    onPressed: () {}, // Adicione a lógica desejada aqui
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.white,
+                      onPrimary: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                        side: BorderSide(
+                          color: Colors.black,
+                          width: 2.0,
+                        ),
+                      ),
                     ),
-                    child: Text(
-                      mesa,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    child: Container(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        mesa,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -109,7 +120,7 @@ class EncerrarPedidos extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.all(20),
                 minimumSize: const Size(double.infinity, 0),
-                primary: const Color(0xff0B518A),
+                primary: const Color(0xff203F97),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -117,9 +128,9 @@ class EncerrarPedidos extends StatelessWidget {
               child: const Text(
                 'Encerrar Comanda',
                 style: TextStyle(
-                  color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
             ),
