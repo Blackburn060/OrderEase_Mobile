@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Produto {
   final String nome;
@@ -100,18 +101,37 @@ class Pedido {
       valorTotal: 0.0,
     );
   }
+  static const String _proximoNumeroKey = 'proximoNumeroPedido';
 
-  static Future<int> getProximoNumeroPedido() async {
-    final querySnapshot =
-        await FirebaseFirestore.instance.collection('pedidos').get();
+static Future<void> _saveProximoNumeroPedido() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setInt(_proximoNumeroKey, _proximoNumeroPedido);
+}
 
-    if (querySnapshot.docs.isNotEmpty) {
-      final ultimaPedido = querySnapshot.docs.last.data();
-      return ultimaPedido['numeroPedido'] + 1;
+static Future<int> getProximoNumeroPedido() async {
+  final querySnapshot = await FirebaseFirestore.instance
+      .collection('pedidos')
+      .orderBy('numeroPedido', descending: true)
+      .limit(1)
+      .get();
+
+  if (querySnapshot.docs.isNotEmpty) {
+    final ultimaPedido = querySnapshot.docs.first.data();
+    
+    // Certifique-se de que 'numeroPedido' existe no documento
+    if (ultimaPedido.containsKey('numeroPedido')) {
+      _proximoNumeroPedido = ultimaPedido['numeroPedido'] + 1;
     } else {
-      return 1;
+      _proximoNumeroPedido = 1;
     }
+  } else {
+    _proximoNumeroPedido = 1;
   }
+
+  await _saveProximoNumeroPedido();  // Salvar após a atribuição
+
+  return _proximoNumeroPedido;
+}
 
   Map<String, dynamic> toMap() {
     return {
@@ -197,11 +217,12 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
     }
   }
 
- double calcularTotalPedido(Pedido pedido) {
-  return pedido.itens.fold(0.0, (total, item) {
-    return total + (item.produto.valor * item.quantidade);
-  });
-}
+  double calcularTotalPedido(Pedido pedido) {
+    return pedido.itens.fold(0.0, (total, item) {
+      return total + (item.produto.valor * item.quantidade);
+    });
+  }
+
   ElevatedButton buildButton(String text, VoidCallback onPressed) {
     return ElevatedButton(
       onPressed: onPressed,
@@ -326,10 +347,8 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
             ),
             const SizedBox(height: 20),
             Container(
-              
               alignment: Alignment.centerRight,
               child: ConstrainedBox(
-              
                 constraints:
                     const BoxConstraints.tightFor(width: 170, height: 50),
                 child: buildButton('Incluir Produto', () async {
@@ -349,7 +368,7 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
                           mesa: mesaController.text,
                           observacao: '',
                           itens: [],
-                          valorTotal: 0.0, // Adicione esta linha
+                          valorTotal: 0.0,
                         );
                         pedidos.add(novoPedido);
                         return novoPedido;
