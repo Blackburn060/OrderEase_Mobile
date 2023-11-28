@@ -5,14 +5,14 @@ import 'package:intl/intl.dart';
 class EncerrarPedidos extends StatelessWidget {
   final String mesa;
 
-  EncerrarPedidos({required this.mesa});
+  const EncerrarPedidos({super.key, required this.mesa});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xff203F97),
-        title: Center(
+        title: const Center(
           child: Text(
             'Encerrar Pedidos',
             style: TextStyle(
@@ -30,36 +30,35 @@ class EncerrarPedidos extends StatelessWidget {
           children: [
             // Container mostrando o número da mesa
             Container(
-              margin: EdgeInsets.only(bottom: 10),
+              margin: const EdgeInsets.only(bottom: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     'Mesa:',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: () {}, // Adicione a lógica desejada aqui
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.white,
-                      onPrimary: Colors.black,
+                      foregroundColor: Colors.black, backgroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12.0),
-                        side: BorderSide(
+                        side: const BorderSide(
                           color: Colors.black,
                           width: 2.0,
                         ),
                       ),
                     ),
                     child: Container(
-                      padding: EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(8.0),
                       child: Text(
                         mesa,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -77,7 +76,7 @@ class EncerrarPedidos extends StatelessWidget {
                   .get(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
+                  return const CircularProgressIndicator();
                 }
 
                 if (snapshot.hasError) {
@@ -85,18 +84,18 @@ class EncerrarPedidos extends StatelessWidget {
                 }
 
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return Text('Nenhum pedido encontrado.');
+                  return const Text('Nenhum pedido encontrado.');
                 }
 
                 List<Map<String, dynamic>> pedidosData = [];
 
-                snapshot.data!.docs.forEach((doc) {
+                for (var doc in snapshot.data!.docs) {
                   var itens = doc['itens'];
 
                   pedidosData.add({
                     'itens': itens,
                   });
-                });
+                }
 
                 return Expanded(
                   child: SingleChildScrollView(
@@ -119,9 +118,8 @@ class EncerrarPedidos extends StatelessWidget {
           _atualizarStatusPago();
         },
               style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20), backgroundColor: const Color(0xff203F97),
                 minimumSize: const Size(double.infinity, 0),
-                primary: const Color(0xff203F97),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -163,7 +161,6 @@ class EncerrarPedidos extends StatelessWidget {
             ],
           );
         }).toList();
-
         return rows;
       }).expand((i) => i).toList(),
     );
@@ -171,38 +168,38 @@ class EncerrarPedidos extends StatelessWidget {
 
   Widget _buildTotalField(List<Map<String, dynamic>> pedidosData) {
     double total = 0.0;
-    pedidosData.forEach((pedido) {
+    for (var pedido in pedidosData) {
       List<dynamic> itens = pedido['itens'];
-      itens.forEach((item) {
+      for (var item in itens) {
         total += item['quantidade'] * item['produto']['valor'];
-      });
-    });
+      }
+    }
 
     return Align(
       alignment: Alignment.topRight,
       child: Container(
-        margin: EdgeInsets.only(top: 20, right: 20),
-        padding: EdgeInsets.all(16.0),
+        margin: const EdgeInsets.only(top: 20, right: 20),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(
+            const Text(
               'Total:',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Container(
-              padding: EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8.0),
               decoration: BoxDecoration(
-                color: Color(0xff0B518A),
+                color: const Color(0xff0B518A),
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: Text(
                 'R\$ ${NumberFormat("#,##0.00", "pt_BR").format(total)}',
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -216,24 +213,19 @@ class EncerrarPedidos extends StatelessWidget {
   }
 void _atualizarStatusPago() async {
     try {
-      // Reference to the 'pedidos' collection in Firestore
       CollectionReference pedidosCollection =
           FirebaseFirestore.instance.collection('pedidos');
-
-      // Update documents where 'mesa' is equal to the selected mesa and 'pago' is equal to 'Não'
       await pedidosCollection
           .where('mesa', isEqualTo: mesa)
           .where('pago', isEqualTo: 'Não')
           .get()
           .then((QuerySnapshot querySnapshot) {
         querySnapshot.docs.forEach((doc) {
-          // Update the 'pago' field to 'Sim'
           pedidosCollection.doc(doc.id).update({'pago': 'Sim'});
         });
       });
     } catch (error) {
-      print('Error updating status pago: $error');
-      // Handle error as needed
+      print('Erro: $error');
     }
   }
   void _encerrarComanda(BuildContext context) {
