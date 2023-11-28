@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class EncerrarPedidos extends StatelessWidget {
-  final int mesa;
+  final String mesa;
 
-  const EncerrarPedidos({Key? key, required this.mesa}) : super(key: key);
+  EncerrarPedidos({required this.mesa});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xff203F97),
-        title: Text(
-          'Encerrar Pedidos - Mesa $mesa',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+        title: Center(
+          child: Text(
+            'Encerrar Pedidos',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
@@ -25,10 +28,53 @@ class EncerrarPedidos extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Container mostrando o número da mesa
+            Container(
+              margin: EdgeInsets.only(bottom: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Mesa:',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () {}, // Adicione a lógica desejada aqui
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.white,
+                      onPrimary: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                        side: BorderSide(
+                          color: Colors.black,
+                          width: 2.0,
+                        ),
+                      ),
+                    ),
+                    child: Container(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        mesa,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 20),
-            // Adiciona a tabela no corpo da tela
             FutureBuilder(
-              future: FirebaseFirestore.instance.collection('pedidos').get(),
+              future: FirebaseFirestore.instance.collection('pedidos')
+                  .where('pago', isEqualTo: 'Não')
+                  .where('mesa', isEqualTo: mesa.toString())
+                  .get(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return CircularProgressIndicator();
@@ -45,35 +91,36 @@ class EncerrarPedidos extends StatelessWidget {
                 List<Map<String, dynamic>> pedidosData = [];
 
                 snapshot.data!.docs.forEach((doc) {
-                  var numeroPedido = doc['numeroPedido'];
-                  var mesa = doc['mesa'];
-                  var status = doc['status'];
                   var itens = doc['itens'];
 
-                  // Adiciona os dados do pedido à lista
                   pedidosData.add({
-                    'numeroPedido': numeroPedido,
-                    'mesa': mesa,
-                    'status': status,
                     'itens': itens,
                   });
                 });
 
                 return Expanded(
-                  child: _buildDataTable(pedidosData),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: Column(
+                      children: [
+                        _buildDataTable(pedidosData),
+                        const SizedBox(height: 20),
+                        _buildTotalField(pedidosData),
+                      ],
+                    ),
+                  ),
                 );
               },
             ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Lógica para encerrar a comanda
                 _encerrarComanda(context);
               },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.all(20),
                 minimumSize: const Size(double.infinity, 0),
-                primary: const Color(0xff0B518A),
+                primary: const Color(0xff203F97),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -81,7 +128,6 @@ class EncerrarPedidos extends StatelessWidget {
               child: const Text(
                 'Encerrar Comanda',
                 style: TextStyle(
-                  color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -94,31 +140,80 @@ class EncerrarPedidos extends StatelessWidget {
     );
   }
 
-  // Método para criar a tabela
   Widget _buildDataTable(List<Map<String, dynamic>> pedidosData) {
     return DataTable(
       columns: const [
-        DataColumn(label: Text('Número Pedido')),
-        DataColumn(label: Text('Mesa')),
-        DataColumn(label: Text('Status')),
-        DataColumn(label: Text('itens')),
+        DataColumn(label: Text('Quantidade')),
+        DataColumn(label: Text('Item')),
+        DataColumn(label: Text('Valor')),
       ],
       rows: pedidosData.map((pedido) {
-        return DataRow(
-          cells: [
-            DataCell(Text(pedido['numeroPedido'].toString())),
-            DataCell(Text(pedido['mesa'])),
-            DataCell(Text(pedido['status'])),
-            DataCell(Text(pedido['itens'].toString())),
+        List<dynamic> itens = pedido['itens'];
+
+        final rows = itens.map<DataRow>((item) {
+          return DataRow(
+            cells: [
+              DataCell(Text(item['quantidade'].toString())),
+              DataCell(Text(item['produto']['nome'].toString()),),
+              DataCell(Text(
+                'R\$ ${item['produto']['valor'].toStringAsFixed(2)}',
+              )),
+            ],
+          );
+        }).toList();
+
+        return rows;
+      }).expand((i) => i).toList(),
+    );
+  }
+
+  Widget _buildTotalField(List<Map<String, dynamic>> pedidosData) {
+    double total = 0.0;
+    pedidosData.forEach((pedido) {
+      List<dynamic> itens = pedido['itens'];
+      itens.forEach((item) {
+        total += item['quantidade'] * item['produto']['valor'];
+      });
+    });
+
+    return Align(
+      alignment: Alignment.topRight,
+      child: Container(
+        margin: EdgeInsets.only(top: 20, right: 20),
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              'Total:',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 8),
+            Container(
+              padding: EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: Color(0xff0B518A),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Text(
+                'R\$ ${NumberFormat("#,##0.00", "pt_BR").format(total)}',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ],
-        );
-      }).toList(),
+        ),
+      ),
     );
   }
 
   void _encerrarComanda(BuildContext context) {
-    // Implemente a lógica para encerrar a comanda aqui
-    // Pode incluir a atualização do status do pedido, etc.
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Comanda encerrada com sucesso!'),

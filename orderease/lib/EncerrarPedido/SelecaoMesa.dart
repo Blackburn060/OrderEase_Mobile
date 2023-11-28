@@ -25,7 +25,7 @@ class SelecaoMesa extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           child: FutureBuilder(
-            future: FirebaseFirestore.instance.collection('pedidos').get(),
+            future: FirebaseFirestore.instance.collection('pedidos').where('pago', isEqualTo: 'Não').get(),
             builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator();
@@ -48,12 +48,12 @@ class SelecaoMesa extends StatelessWidget {
                     margin: EdgeInsets.symmetric(vertical: 10),
                     child: ElevatedButton(
                       onPressed: () {
-                        _navigateToEncerrarPedidos(context, int.parse(numeroMesa));
+                        _navigateToEncerrarPedidos(context, numeroMesa);
                       },
                       style: ElevatedButton.styleFrom(
                         padding: EdgeInsets.all(20),
                         minimumSize: Size(double.infinity, 0),
-                        primary: const Color(0xff203F97), 
+                        primary: const Color(0xff203F97),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                           side: BorderSide(color: Color.fromARGB(255, 223, 222, 218)),
@@ -84,12 +84,12 @@ class SelecaoMesa extends StatelessWidget {
     );
   }
 
-  void _navigateToEncerrarPedidos(BuildContext context, int mesa) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EncerrarPedidos(mesa: mesa),
-      ),
-    );
-  }
+  void _navigateToEncerrarPedidos(BuildContext context, String mesa) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => EncerrarPedidos(mesa: mesa),
+    ),
+  );
+}
 }
