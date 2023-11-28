@@ -114,9 +114,10 @@ class EncerrarPedidos extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                _encerrarComanda(context);
-              },
+        onPressed: () {
+          _encerrarComanda(context);
+          _atualizarStatusPago();
+        },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.all(20),
                 minimumSize: const Size(double.infinity, 0),
@@ -213,7 +214,28 @@ class EncerrarPedidos extends StatelessWidget {
       ),
     );
   }
+void _atualizarStatusPago() async {
+    try {
+      // Reference to the 'pedidos' collection in Firestore
+      CollectionReference pedidosCollection =
+          FirebaseFirestore.instance.collection('pedidos');
 
+      // Update documents where 'mesa' is equal to the selected mesa and 'pago' is equal to 'Não'
+      await pedidosCollection
+          .where('mesa', isEqualTo: mesa)
+          .where('pago', isEqualTo: 'Não')
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+        querySnapshot.docs.forEach((doc) {
+          // Update the 'pago' field to 'Sim'
+          pedidosCollection.doc(doc.id).update({'pago': 'Sim'});
+        });
+      });
+    } catch (error) {
+      print('Error updating status pago: $error');
+      // Handle error as needed
+    }
+  }
   void _encerrarComanda(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
