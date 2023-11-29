@@ -49,11 +49,10 @@ class MenuLateral extends StatelessWidget {
             accountEmail: const Text('emailusuario@example.com'),
             currentAccountPicture: GestureDetector(
               onTap: () {
-                // Navegar para a tela de LoginPage quando o ícone do usuário for pressionado
                 Navigator.pushNamed(context, '/LoginPage');
               },
               child: const CircleAvatar(
-                backgroundColor: Colors.white,
+                backgroundColor: Color.fromARGB(255, 255, 255, 255),
                 child: Icon(Icons.person),
               ),
             ),
@@ -62,15 +61,15 @@ class MenuLateral extends StatelessWidget {
             leading: const Icon(Icons.home),
             title: const Text('Início'),
             onTap: () {
-              Navigator.pop(context); // Fecha o menu lateral
-              Navigator.pushNamed(context,
-                  '/SelecaoEscolhas'); // Navega para a página de início
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/SelecaoEscolhas');
             },
           ),
           ListTile(
-            leading: const Icon(Icons.explore),
+            leading: const Icon(Icons.note_alt_outlined),
             title: const Text('Consultar Pedidos'),
             onTap: () {
+              Navigator.pop(context);
               Navigator.pushNamed(context, '/ConsultarPedidos');
             },
           ),
@@ -78,22 +77,23 @@ class MenuLateral extends StatelessWidget {
             leading: const Icon(Icons.notifications),
             title: const Text('Registrar Pedidos'),
             onTap: () {
+              Navigator.pop(context);
               Navigator.pushNamed(context, '/RegistroPedidos');
             },
           ),
-        
           ListTile(
             leading: const Icon(Icons.notifications),
             title: const Text('Encerrar comanda'),
             onTap: () {
-              // Adicione ação aqui para navegar para a página de notificações
+              Navigator.pop(context);
             },
           ),
           ListTile(
             leading: const Icon(Icons.settings),
-            title: const Text('Visualizar Cardapio'),
+            title: const Text('Visualizar Cardápio'),
             onTap: () {
               // Adicione ação aqui para navegar para a página de configurações
+              Navigator.pop(context);
             },
           ),
           ListTile(
