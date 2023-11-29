@@ -13,6 +13,13 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String _errorText = ''; // Variável para armazenar a mensagem de erro
+  bool _disposed = false; // Adicione esta variável para verificar se o widget foi descartado
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
 
   void _togglePasswordVisibility() {
     setState(() {
@@ -22,16 +29,21 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _login() async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
-      Navigator.pushNamed(context, '/SelecaoEscolhas');
+      // Verifica se o widget foi descartado antes de chamar setState
+      if (!_disposed) {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailController.text,
+          password: _passwordController.text,
+        );
+        Navigator.pushNamed(context, '/SelecaoEscolhas');
+      }
     } catch (e) {
-      setState(() {
-        _errorText =
-            'E-mail ou senha incorretos'; 
-      });
+      // Verifica se o widget foi descartado antes de chamar setState
+      if (!_disposed) {
+        setState(() {
+          _errorText = 'E-mail ou senha incorretos';
+        });
+      }
     }
   }
 
