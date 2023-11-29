@@ -50,15 +50,16 @@ class ConsultaPedidosState extends State<ConsultaPedidos> {
     fetchPedidos();
   }
 
-  Future<void> fetchPedidos() async {
+ Future<void> fetchPedidos() async {
     try {
       final response = await http.get(
-          Uri.parse('https://orderease-api.up.railway.app/api/obter-pedidos'));
+          Uri.parse('https://orderease-api.up.railway.app/api/obter-pedidos?status=Aguardando&status=Preparando&status=Finalizado'));
       if (response.statusCode == 200) {
         List<dynamic> jsonResponse = json.decode(response.body);
         setState(() {
           pedidos = jsonResponse.map((data) => Pedido.fromJson(data)).toList();
         });
+        print('Lista de pedidos atualizada com sucesso.');
       } else {
         throw Exception(
             'Failed to load pedidos. Status code: ${response.statusCode}');
@@ -78,8 +79,7 @@ class ConsultaPedidosState extends State<ConsultaPedidos> {
         headers: {'Content-Type': 'application/json'},
       );
 
-      print(
-          'Enviando solicitação de atualização de status para o pedido $id...');
+      print('Enviando solicitação de atualização de status para o pedido $id...');
       print('Resposta recebida: ${response.body}');
 
       if (response.statusCode == 200) {
@@ -93,12 +93,13 @@ class ConsultaPedidosState extends State<ConsultaPedidos> {
       print('Erro ao atualizar o status do pedido: $e');
     }
   }
-    Future<void> marcarComoCancelado(String id) async {
+
+  Future<void> marcarComoCancelado(String id) async {
+    print('Marcando pedido como Cancelado: $id');
     await atualizarStatusPedido(id, 'Cancelado');
   }
 
-
-  @override
+   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -149,36 +150,38 @@ class ConsultaPedidosState extends State<ConsultaPedidos> {
                           style: TextStyle(color: Colors.white),
                         ),
                         Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text('Excluir Pedido'),
-                                  content: Text(
-                                      'Tem certeza de que deseja excluir este pedido?'),
-                                  actions: <Widget>[
-                                    TextButton(
-                                      onPressed: () {
-                                        // Coloque aqui a lógica para excluir o pedido
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: Text('Sim'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: Text('Cancelar'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                          child: Icon(Icons.delete, color: Colors.white),
-                        ),
+                        if (pedidos[index].status.toLowerCase() == 'aguardando')
+                          GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text('Excluir Pedido'),
+                                    content: Text(
+                                        'Tem certeza de que deseja excluir este pedido?'),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        onPressed: () {
+                                          // Chamando a função marcarComoCancelado diretamente
+                                          marcarComoCancelado(pedidos[index].id);
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text('Sim'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text('Cancelar'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            child: Icon(Icons.delete, color: Colors.white),
+                          ),
                         GestureDetector(
                           onTap: () {
                             // Chamando a função marcarComoCancelado diretamente
