@@ -103,7 +103,7 @@ class TelaCozinhaState extends State<TelaCozinha> {
     try {
       final response = await http.get(
         Uri.parse(
-            'https://orderease-api.onrender.com/api/obter-pedidos?status=Preparando&status=Aguardando'),
+            'https://orderease-api.up.railway.app/api/obter-pedidos?status=Preparando&status=Aguardando'),
       );
       if (response.statusCode == 200) {
         List<dynamic> jsonResponse = json.decode(response.body);
@@ -146,7 +146,7 @@ class TelaCozinhaState extends State<TelaCozinha> {
   }
 
   Future<void> atualizarStatusPedido(String id, String novoStatus) async {
-    final url = 'https://orderease-api.onrender.com/api/atualizar-pedido/$id';
+    final url = 'https://orderease-api.up.railway.app/api/atualizar-pedido/$id';
 
     try {
       final response = await http.put(

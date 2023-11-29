@@ -78,6 +78,7 @@ class Pedido {
   final String mesa;
   final String observacao;
   final List<ItemPedido> itens;
+  final String pago;
   final String status;
   double valorTotal;
 
@@ -86,6 +87,8 @@ class Pedido {
     required this.mesa,
     required this.observacao,
     required this.itens,
+        this.pago= 'Não',
+
     this.status = 'Aguardando',
     required this.valorTotal,
   });
@@ -140,6 +143,7 @@ static Future<int> getProximoNumeroPedido() async {
       'itens': itens.map((item) => item.toMap()).toList(),
       'mesa': mesa,
       'status': status,
+      'pago': pago,
       'valorTotal': valorTotal, // Inclua o valor total no mapeamento
     };
   }
@@ -152,6 +156,7 @@ static Future<int> getProximoNumeroPedido() async {
       mesa: map['mesa'],
       observacao: map['observacao'],
       itens: itens,
+      pago:'Não',
       status: map['status'] ?? 'aguardando',
       valorTotal:
           map['valorTotal'] ?? 0.0, // Valor padrão 0.0 se não estiver presente
@@ -190,7 +195,7 @@ class FuncionalidadesPedidosState extends State<FuncionalidadesPedidos> {
   Future<void> carregarProdutosDaAPI() async {
     try {
       final response = await http.get(Uri.parse(
-          'https://orderease-api.onrender.com/api/listar-produtos?status=Ativo'));
+          'https://orderease-api.up.railway.app/api/listar-produtos?status=Ativo'));
 
       if (response.statusCode == 200) {
         final List<dynamic> produtosJson = json.decode(response.body);

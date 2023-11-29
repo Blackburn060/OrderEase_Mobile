@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import '../menulateral.dart';
 
 const Color colorPrimary = Color(0xff203F97);
 const Color colorRed = Colors.red;
@@ -13,12 +12,14 @@ class Pedido {
   final String mesa;
   final String status;
   final List<Map<String, dynamic>> itens;
+  final String id;
 
   Pedido({
     required this.numeroPedido,
     required this.mesa,
     required this.status,
     required this.itens,
+    required this.id,
   });
 
   factory Pedido.fromJson(Map<String, dynamic> json) {
@@ -27,6 +28,7 @@ class Pedido {
       mesa: json['mesa'],
       status: json['status'],
       itens: List<Map<String, dynamic>>.from(json['itens']),
+      id: json['id'],
     );
   }
 }
@@ -50,21 +52,51 @@ class ConsultaPedidosState extends State<ConsultaPedidos> {
 
   Future<void> fetchPedidos() async {
     try {
-      final response =
-          await http.get(Uri.parse('https://orderease-api.onrender.com/api/obter-pedidos'));
+      final response = await http.get(
+          Uri.parse('https://orderease-api.up.railway.app/api/obter-pedidos'));
       if (response.statusCode == 200) {
         List<dynamic> jsonResponse = json.decode(response.body);
         setState(() {
           pedidos = jsonResponse.map((data) => Pedido.fromJson(data)).toList();
         });
       } else {
-        throw Exception('Failed to load pedidos. Status code: ${response.statusCode}');
+        throw Exception(
+            'Failed to load pedidos. Status code: ${response.statusCode}');
       }
     } catch (e) {
       print('Erro ao carregar pedidos: $e');
-      // Trate a exceção de forma apropriada, como exibindo uma mensagem de erro para o usuário.
     }
   }
+
+  Future<void> atualizarStatusPedido(String id, String novoStatus) async {
+    final url = 'https://orderease-api.up.railway.app/api/atualizar-pedido/$id';
+
+    try {
+      final response = await http.put(
+        Uri.parse(url),
+        body: jsonEncode({'status': novoStatus}),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      print(
+          'Enviando solicitação de atualização de status para o pedido $id...');
+      print('Resposta recebida: ${response.body}');
+
+      if (response.statusCode == 200) {
+        print('Status do pedido atualizado com sucesso.');
+      } else {
+        print(
+            'Falha ao atualizar o status do pedido - Status Code: ${response.statusCode}');
+        print('Corpo da resposta: ${response.body}');
+      }
+    } catch (e) {
+      print('Erro ao atualizar o status do pedido: $e');
+    }
+  }
+    Future<void> marcarComoCancelado(String id) async {
+    await atualizarStatusPedido(id, 'Cancelado');
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +104,6 @@ class ConsultaPedidosState extends State<ConsultaPedidos> {
       appBar: AppBar(
         title: const Text('Pedidos'),
       ),
-      endDrawer: MenuLateral(),
       body: pedidos.isEmpty
           ? Center(
               child: Text(
@@ -118,17 +149,53 @@ class ConsultaPedidosState extends State<ConsultaPedidos> {
                           style: TextStyle(color: Colors.white),
                         ),
                         Spacer(),
-                        Container(
-                          padding: EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            color: statusColor,
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                          child: Text(
-                            pedidos[index].status,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
+                        GestureDetector(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('Excluir Pedido'),
+                                  content: Text(
+                                      'Tem certeza de que deseja excluir este pedido?'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        // Coloque aqui a lógica para excluir o pedido
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('Sim'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('Cancelar'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          child: Icon(Icons.delete, color: Colors.white),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            // Chamando a função marcarComoCancelado diretamente
+                            marcarComoCancelado(pedidos[index].id);
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(8.0),
+                            decoration: BoxDecoration(
+                              color: statusColor,
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
+                            child: Text(
+                              pedidos[index].status,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),
