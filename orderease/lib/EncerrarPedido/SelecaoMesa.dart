@@ -4,7 +4,7 @@ import 'package:orderease/EncerrarPedido/EncerrarComanda.dart';
 import 'package:orderease/MenuLateral.dart';
 
 class SelecaoMesa extends StatelessWidget {
-  const SelecaoMesa({Key? key}) : super(key: key);
+  const SelecaoMesa({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +25,10 @@ class SelecaoMesa extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           child: FutureBuilder(
-            future: FirebaseFirestore.instance.collection('pedidos').where('pago', isEqualTo: 'Não').get(),
+            future: FirebaseFirestore.instance.collection('pedidos').where('pago', isEqualTo: 'Não').where('status', isEqualTo: 'Finalizado').get(),
             builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
+                return const CircularProgressIndicator();
               }
 
               if (snapshot.hasError) {
@@ -36,32 +36,31 @@ class SelecaoMesa extends StatelessWidget {
               }
 
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return Text('Nenhuma mesa encontrada.');
+                return const Text('Nenhuma mesa encontrada.');
               }
 
               List<Widget> mesaButtons = [];
 
-              snapshot.data!.docs.forEach((doc) {
+              for (var doc in snapshot.data!.docs) {
                 var numeroMesa = doc['mesa'];
                 mesaButtons.add(
                   Container(
-                    margin: EdgeInsets.symmetric(vertical: 10),
+                    margin: const EdgeInsets.symmetric(vertical: 10),
                     child: ElevatedButton(
                       onPressed: () {
                         _navigateToEncerrarPedidos(context, numeroMesa);
                       },
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.all(20),
-                        minimumSize: Size(double.infinity, 0),
-                        primary: const Color(0xff203F97),
+                        padding: const EdgeInsets.all(20), backgroundColor: const Color(0xff203F97),
+                        minimumSize: const Size(double.infinity, 0),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
-                          side: BorderSide(color: Color.fromARGB(255, 223, 222, 218)),
+                          side: const BorderSide(color: Color.fromARGB(255, 223, 222, 218)),
                         ),
                       ),
                       child: Text(
                         'Mesa $numeroMesa',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           color: Colors.white,
                         ),
@@ -69,7 +68,7 @@ class SelecaoMesa extends StatelessWidget {
                     ),
                   ),
                 );
-              });
+              }
 
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,

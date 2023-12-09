@@ -114,8 +114,9 @@ class EncerrarPedidos extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
         onPressed: () {
-          _encerrarComanda(context);
-          _atualizarStatusPago();
+          _showConfirmationDialog(context);
+          //_encerrarComanda(context);
+          //_atualizarStatusPago();
         },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.all(20), backgroundColor: const Color(0xff203F97),
@@ -143,8 +144,8 @@ class EncerrarPedidos extends StatelessWidget {
   Widget _buildDataTable(List<Map<String, dynamic>> pedidosData) {
     return DataTable(
       columns: const [
-        DataColumn(label: Text('Quantidade')),
         DataColumn(label: Text('Item')),
+        DataColumn(label: Text('Qtd.')),
         DataColumn(label: Text('Valor')),
       ],
       rows: pedidosData.map((pedido) {
@@ -153,8 +154,8 @@ class EncerrarPedidos extends StatelessWidget {
         final rows = itens.map<DataRow>((item) {
           return DataRow(
             cells: [
+              DataCell(Text(item['produto']['nome'].toString())),
               DataCell(Text(item['quantidade'].toString())),
-              DataCell(Text(item['produto']['nome'].toString()),),
               DataCell(Text(
                 'R\$ ${item['produto']['valor'].toStringAsFixed(2)}',
               )),
@@ -220,9 +221,9 @@ void _atualizarStatusPago() async {
           .where('pago', isEqualTo: 'Não')
           .get()
           .then((QuerySnapshot querySnapshot) {
-        querySnapshot.docs.forEach((doc) {
+        for (var doc in querySnapshot.docs) {
           pedidosCollection.doc(doc.id).update({'pago': 'Sim'});
-        });
+        }
       });
     } catch (error) {
       print('Erro: $error');
@@ -235,4 +236,39 @@ void _atualizarStatusPago() async {
       ),
     );
   }
+  Future<void> _showConfirmationDialog(BuildContext context) async {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false, // o usuário deve tocar em um botão!
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Confirmar Encerramento'),
+        content: const SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              Text('Tem certeza de que deseja encerrar a comanda?'),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              _encerrarComanda(context);
+              _atualizarStatusPago();
+              Navigator.of(context).pop();
+              Navigator.pushNamed(context, '/SelecaoEscolhas');
+            },
+            child: const Text('Confirmar'),
+          ),
+        ],
+      );
+    },
+  );
+}
 }
