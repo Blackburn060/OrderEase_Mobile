@@ -209,6 +209,8 @@ class TelaCozinhaState extends State<TelaCozinha> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pedidos - Cozinha'),
+                backgroundColor: const Color(0xff0B518A),// Defina a cor desejada aqui
+
       ),
       body: nenhumPedidoEncontrado
           ? const Center(

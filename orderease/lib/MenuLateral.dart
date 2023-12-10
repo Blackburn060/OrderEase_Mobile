@@ -45,11 +45,11 @@ class MenuLateral extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: <Widget>[
           UserAccountsDrawerHeader(
-            accountName: const Text('Nome usuário'),
-            accountEmail: const Text('emailusuario@example.com'),
+            accountName: const Text('ADMIN'),
+            accountEmail: const Text('Admin@gmail.com'),
             currentAccountPicture: GestureDetector(
               onTap: () {
-                Navigator.pushNamed(context, '/LoginPage');
+               
               },
               child: const CircleAvatar(
                 backgroundColor: Color.fromARGB(255, 255, 255, 255),
@@ -86,6 +86,8 @@ class MenuLateral extends StatelessWidget {
             title: const Text('Encerrar comanda'),
             onTap: () {
               Navigator.pop(context);
+                Navigator.pushNamed(context, '/SelecaoMesa');// Navega para a tela de encerramento da comanda
+
             },
           ),
           ListTile(

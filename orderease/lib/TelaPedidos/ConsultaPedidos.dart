@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'package:orderease/MenuLateral.dart';
+
 
 const Color colorPrimary = Color(0xff203F97);
 const Color colorRed = Colors.red;
@@ -42,23 +45,40 @@ class ConsultaPedidos extends StatefulWidget {
 
 class ConsultaPedidosState extends State<ConsultaPedidos> {
   late List<Pedido> pedidos;
+  late Timer timer;
 
   @override
   void initState() {
     super.initState();
     pedidos = [];
     fetchPedidos();
+
+    // Iniciar o timer para atualização automática a cada 30 segundos
+    timer = Timer.periodic(const Duration(seconds: 30), (Timer t) {
+      if (mounted) {
+        fetchPedidos();
+      }
+    });
   }
 
- Future<void> fetchPedidos() async {
+  @override
+  void dispose() {
+    // Cancelar o timer ao descartar a tela
+    timer.cancel();
+    super.dispose();
+  }
+
+  Future<void> fetchPedidos() async {
     try {
       final response = await http.get(
           Uri.parse('https://orderease-api.up.railway.app/api/obter-pedidos?status=Aguardando&status=Preparando&status=Finalizado'));
       if (response.statusCode == 200) {
         List<dynamic> jsonResponse = json.decode(response.body);
-        setState(() {
-          pedidos = jsonResponse.map((data) => Pedido.fromJson(data)).toList();
-        });
+        if (mounted) {
+          setState(() {
+            pedidos = jsonResponse.map((data) => Pedido.fromJson(data)).toList();
+          });
+        }
         print('Lista de pedidos atualizada com sucesso.');
       } else {
         throw Exception(
@@ -99,12 +119,13 @@ class ConsultaPedidosState extends State<ConsultaPedidos> {
     await atualizarStatusPedido(id, 'Cancelado');
   }
 
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pedidos'),
       ),
+      endDrawer: const MenuLateral(),
       body: pedidos.isEmpty
           ? Center(
               child: Text(
