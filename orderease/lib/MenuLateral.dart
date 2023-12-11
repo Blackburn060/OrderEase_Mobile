@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class MenuLateral extends StatelessWidget {
   const MenuLateral({Key? key}) : super(key: key);
@@ -32,10 +33,18 @@ class MenuLateral extends StatelessWidget {
   }
 
   void _realizarSaida(BuildContext context) {
-    // Adicione aqui qualquer lógica necessária ao sair
-    // Por exemplo, você pode fazer logout, limpar o estado da aplicação, etc.
+  
     Navigator.pushNamedAndRemoveUntil(
         context, '/TelaInicial', (route) => false);
+  }
+
+  void _navegarParaCardapio(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CardapioWebView(),
+      ),
+    );
   }
 
   @override
@@ -49,7 +58,7 @@ class MenuLateral extends StatelessWidget {
             accountEmail: const Text('Admin@gmail.com'),
             currentAccountPicture: GestureDetector(
               onTap: () {
-               
+                // Adicione ação aqui se desejar algo ao tocar na imagem do perfil
               },
               child: const CircleAvatar(
                 backgroundColor: Color.fromARGB(255, 255, 255, 255),
@@ -86,16 +95,15 @@ class MenuLateral extends StatelessWidget {
             title: const Text('Encerrar comanda'),
             onTap: () {
               Navigator.pop(context);
-                Navigator.pushNamed(context, '/SelecaoMesa');// Navega para a tela de encerramento da comanda
-
+              Navigator.pushNamed(context, '/SelecaoMesa');
             },
           ),
           ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Visualizar Cardápio'),
             onTap: () {
-              // Adicione ação aqui para navegar para a página de configurações
               Navigator.pop(context);
+              _navegarParaCardapio(context);
             },
           ),
           ListTile(
@@ -106,6 +114,23 @@ class MenuLateral extends StatelessWidget {
             },
           ),
         ],
+      ),
+    );
+  }
+}
+
+class CardapioWebView extends StatelessWidget {
+  const CardapioWebView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Cardápio'),
+      ),
+      body: const WebView(
+        initialUrl: 'https://orderease.vercel.app/homeCardapio',
+        javascriptMode: JavascriptMode.unrestricted,
       ),
     );
   }

@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
 import 'menulateral.dart';
 import 'customizacaoBotoes/CustomButton.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class SelecaoEscolhas extends StatelessWidget {
   const SelecaoEscolhas({Key? key}) : super(key: key);
+
+  // Function to navigate to WebView screen
+  void _navegarParaCardapio(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CardapioWebView(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,17 +32,16 @@ class SelecaoEscolhas extends StatelessWidget {
         ),
       ),
       endDrawer: const MenuLateral(),
-      // Use endDrawer to display the menu on the left
       body: Center(
         child: Container(
           width: 370,
           height: 540,
           decoration: BoxDecoration(
-            color: const Color(0xff203F97).withOpacity(0.0), // Background color
+            color: const Color(0xff203F97).withOpacity(0.0),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: Colors.black, // Cor da borda
-              width: 2.0, // Largura da borda
+              color: Colors.black,
+              width: 2.0,
             ),
           ),
           child: Column(
@@ -41,7 +51,7 @@ class SelecaoEscolhas extends StatelessWidget {
               CustomLargeButton(
                 text: 'Consultar Cardápio',
                 onPressed: () {
-                  // Ação para "Consultar Cardápio"
+                  _navegarParaCardapio(context); // Call the function
                 },
               ),
               const SizedBox(height: 37),
